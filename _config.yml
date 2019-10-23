@@ -1,3 +1,4 @@
 theme: jekyll-theme-cayman
 title: Thomas Beucher
 description: Welcome to my website, you will find some of my work here.
+markdown: kramdown
