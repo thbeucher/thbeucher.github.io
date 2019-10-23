@@ -1,2 +1,1 @@
-layout: page
-title: "Hello Everyone"
+# Hello Everyone
