@@ -42,7 +42,7 @@ So we have 3 matrices for queries, keys and values projections : W<sub>Q</sub>, 
 
 ![QK](images/QK.png)
 
-2) Second step - Computes a Score matrix by dividing the matrice obtain at step 1 by sqrt(d<sub>k</sub>) then normalize it (softmax)
+2) Second step - Computes a Score matrix by dividing the matrice obtain at step 1 by sqrt(d<sub>k</sub>) then normalize it using the softmax function
 
 ![S](images/S.png)
 
