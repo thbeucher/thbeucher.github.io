@@ -52,3 +52,5 @@ So we have 3 matrices for queries, keys and values projections : W<sub>Q</sub>, 
 
 
 ## Multi-Head Attention
+
+In previous section we depicted the mechanism of one attention head so the multi-head attention is realized by using as many heads as you want then you just have to concatenate the results of each head to finally perform a final projection to obtains the output matrice.
