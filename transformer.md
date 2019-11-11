@@ -46,7 +46,7 @@ So we have 3 matrices for queries, keys and values projections : W<sub>Q</sub>, 
 
 ![S](images/S.png)
 
-3) Last step - Computes our final matrix as the weighted sum of word representation with their attention scores
+3) Last step - Computes our final matrice as the weighted sum of word representation with their attention scores
 
 ![Vw1](images/Vw1.png)
 
