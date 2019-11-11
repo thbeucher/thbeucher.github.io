@@ -2,6 +2,8 @@
 
 The Transformer was presented in paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762), the interesting part of the proposed architecture lie in the used attention mechanism that I try to explain in the following post.
 
+You can find an implementation of the Transformer [here](https://github.com/thbeucher/ML_pytorch/tree/master/models/transformer).
+
 ## Scaled Dot-Product Attention
 
 The attention mechanism used is depicted by the following equation:
