@@ -1,6 +1,6 @@
 # The Transformer
 
-The Transformer was presented in paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762).
+The Transformer was presented in paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762), the interesting part of the proposed architecture lie in the used attention mechanism that I try to explain in the following post.
 
 ## Scaled Dot-Product Attention
 
@@ -14,7 +14,7 @@ Proposed formulation of what Q, K, V are:
 * K - keys : The tokens we compares to the query (a sequence of vectors)
 * V - values : A sequence of vectors used to store the final embedding representation of tokens
 
-The purpose of this attention mechanism is to create, for each token in a sequence, a new contextual representation that enrich token embedding with information of the other tokens in the sequence.
+**The purpose of this attention mechanism is to create, for each token in a sequence, a new contextual representation that enrich token embedding with information of the other tokens in the sequence.**
 
 This attention is composed of 3 important steps, let's see them through an example.
 
