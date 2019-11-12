@@ -4,6 +4,8 @@ Passionate about nature intelligence, I want to understand his secrets and that'
 
 Currently working on NLP (Natural Language Processing) field.
 
+Link to my *[CV](cv.md)*.
+
 # Topics 
 
 * *[The transformer](transformer.md)*
