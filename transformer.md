@@ -11,7 +11,7 @@ The attention mechanism used is depicted by the following equation:
 
 where Q, K, V and d<sub>k</sub> are respectively the queries, the keys, the values and the keys dimension.
 
-Proposed formulation of what Q, K, V are:
+We can describe what Q, K, V are like:
 * Q - query : Input token we currently looking at (a vector)
 * K - keys : The tokens we compares to the query (a sequence of vectors)
 * V - values : A sequence of vectors used to store the final embedding representation of tokens
