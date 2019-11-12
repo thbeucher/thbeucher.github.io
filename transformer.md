@@ -16,7 +16,7 @@ We can describe what Q, K, V are like:
 * K - keys : The tokens we compares to the query (a sequence of vectors)
 * V - values : A sequence of vectors used to store the final embedding representation of tokens
 
-**The purpose of this attention mechanism is to create, for each token in a sequence, a new contextual representation that enrich token embedding with information of the other tokens in the sequence.**
+**The purpose of this attention mechanism is to create, for each token in a sequence, a new contextual representation that enrich token embedding with information of the other tokens in the sequence.** (it's completely performed in the Transformer architecture by the use of multiple heads and the Feed-Forward network that create our final embedding)
 
 This attention is composed of 3 important steps, let's see them through an example.
 
