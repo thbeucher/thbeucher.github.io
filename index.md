@@ -1,6 +1,6 @@
 # Curriculum
 
-Passionate about nature intelligence, I want to understand his secrets and that's why I naturally turn my carreer on machine learning theme.
+Passionate about nature intelligence, I want to understand his secrets and that's why I naturally turn my career on machine learning theme.
 
 Currently working on NLP (Natural Language Processing) field.
 
