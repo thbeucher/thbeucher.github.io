@@ -27,7 +27,8 @@ Task : optimizing through gradient descent not only the base weights, but also t
 
 Result : fixed parameters obtained but describing how to change each connection over time.
 
-In 2016 paper they propose a time-dependent quantity for each connection in the network, called the **Hebbian trace** :
+In [[2016](https://arxiv.org/pdf/1609.02228.pdf)] paper they propose a time-dependent quantity for each connection
+in the network, called the **Hebbian trace** :
 
 <code>**Hebb<sub>k</sub>(t) = (1 - &gamma;) * Hebb<sub>k</sub>(t-1) + &gamma; * x<sub>k</sub>(t) * y(t)**</code>
 
@@ -37,3 +38,12 @@ activity of the pre-synaptic cell, and <code>**&gamma;**</code> is a time consta
 So the response of a given cell can be written with a fixed component (classic weights) and a plastic one : 
 
 <code>**y(t) = tanh(&Sigma;<sub>k</sub> w<sub>k</sub>x<sub>k</sub>(t) + &alpha;<sub>k</sub>Hebb<sub>k</sub>(t)x<sub>k</sub>(t) + b)**</code>
+
+here the plastic parameter <code>**&alpha;<sub>k</sub>**</code> is constant over time.
+
+In [[2018](https://arxiv.org/pdf/1804.02464.pdf)] paper, they rebaptised <code>**&gamma;**</code> as <code>**&eta;**</code> (call it the learning rate of plasticity) and change the **Hebbian trace** definition using Oja's rule.
+Oja's rule is a modification of the standard Hebb's rule that allow, among others, to maintain stable weight values indefinitely in the absence of stimulation (thus allowing stable long-term memories) while still preventing runaway divergences.
+
+The **Hebbian trace** definition become :
+
+<code>****</code>
