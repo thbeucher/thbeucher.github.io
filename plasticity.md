@@ -10,7 +10,8 @@ Following papers:
 Some definition from [Artificial Evolution of Plastic Neural Network : a Few Key Concepts](https://hal.archives-ouvertes.fr/hal-01300702/document)
 and [NonSynaptic Plasticity](https://en.wikipedia.org/wiki/Nonsynaptic_plasticity)
 
-<code>**Hebb's rule**</code> : neurons that fire together, wire together.
+<code>**Hebb's rule**</code> : neurons that fire together, wire together. (if a neuron repeatedly takes part
+in making another neuron fire, the connection between them is strengthened)
 
 <code>**Structural plasticity**</code> : the mechanism describing a generation of new connections and thereby redefining
 the topology of the network.
@@ -19,3 +20,20 @@ the topology of the network.
 
 <code>**Non-Synaptic Plasticity**</code> : modification of intrinsic excitability of the neuron.
 Excitatory postSynaptic potentials (EPSPs) and Inhibitory postSynaptic potentials (IPSPs).
+
+Fact : usual Neural Network trained with backpropagation have fixed connections weights that do not change once the training is complete.
+
+Task : optimizing through gradient descent not only the base weights, but also the amount of plasticity in each connection.
+
+Result : fixed parameters obtained but describing how to change each connection over time.
+
+In 2016 paper they propose a time-dependent quantity for each connection in the network, called the **Hebbian trace** :
+
+<code>**Hebb<sub>k</sub>(t) = (1 - &gamma;) * Hebb<sub>k</sub>(t-1) + &gamma; * x<sub>k</sub>(t) * y(t)**</code>
+
+where <code>**y(t)**</code> is the activity of the post-synaptic cell, <code>**x<sub>k</sub>(t)**</code> is the
+activity of the pre-synaptic cell, and <code>**&gamma;**</code> is a time constant.
+
+So the response of a given cell can be written with a fixed component (classic weights) and a plastic one : 
+
+<code>**y(t) = tanh(&Sigma;<sub>k</sub> w<sub>k</sub>x<sub>k</sub>(t) + &alpha;<sub>k</sub>Hebb<sub>k</sub>(t)x<sub>k</sub>(t) + b)**</code>
