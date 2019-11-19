@@ -50,3 +50,22 @@ In fact, they change the notation as follow :
 <code>**Hebb<sub>i,j</sub>(t+1) = Hebb<sub>i,j</sub>(t) + &eta;x<sub>j</sub>(t)(x<sub>i</sub>(t-1) - x<sub>j</sub>(t)Hebb<sub>i,j</sub>(t))**</code>
 
 as, in the context of recurrent neural network, they put the plasticity component with the hidden state passed from previous step *t-1* (<code>**x<sub>i</sub>(t-1)**</code>) and current input gate (<code>**x<sub>j</sub>(t)**</code>). And instead of speaking about the connection of a neuron *k* with the current looked neuron, they use the notation for representing the connection between neurons *i* and *j*.
+
+The differentiable plasticity framework from [[2016](https://arxiv.org/pdf/1609.02228.pdf)] facilitated the automatically weight changes as a function of pre- and post-synaptic activity. In [[2019](https://openreview.net/pdf?id=r1lrAiA5Ym)] paper, they propose to extend the framework with neuromodulated plasticity.
+
+First the **Hebbian trace** definition become :
+
+<code>**Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + &eta;x<sub>i</sub>(t-1)x<sub>j</sub>(t))**</code>
+
+where the **Clip** function can be :
+* a simple decay term (as in [[2016](https://arxiv.org/pdf/1609.02228.pdf)] paper)
+* a normalization implementing Oja's rule (as in [[2018](https://arxiv.org/pdf/1804.02464.pdf)] paper)
+* a simple hard clip (proposed in this new paper)
+
+
+---
+Site Map:
+* Main Page -> *[Main](index.md)*
+* Transformer post -> *[Transformer](transformer.md)*
+* Curriculum Vitae -> [CV](cv.md)
+* Contact page -> *[Contact](contact.md)*
