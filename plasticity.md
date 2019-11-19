@@ -3,9 +3,7 @@ Following papers:
 * [Differentiable plasticity : training plastic neural networks with backpropagation](https://arxiv.org/pdf/1804.02464.pdf) [2018]
 * [BackPropamine : training self-modifying neural networks with differentiable neuromodulated plasticity](https://openreview.net/pdf?id=r1lrAiA5Ym) [2019]
 
-
-![neuron](https://i.stack.imgur.com/pX1sj.jpg)
-
+![neuron](images/neuron_synapse_dendrites.jpg)
 
 Some definition from [Artificial Evolution of Plastic Neural Network : a Few Key Concepts](https://hal.archives-ouvertes.fr/hal-01300702/document)
 and [NonSynaptic Plasticity](https://en.wikipedia.org/wiki/Nonsynaptic_plasticity)
@@ -21,11 +19,10 @@ the topology of the network.
 <code>**Non-Synaptic Plasticity**</code> : modification of intrinsic excitability of the neuron.
 Excitatory postSynaptic potentials (EPSPs) and Inhibitory postSynaptic potentials (IPSPs).
 
-Fact : usual Neural Network trained with backpropagation have fixed connections weights that do not change once the training is complete.
-
-Task : optimizing through gradient descent not only the base weights, but also the amount of plasticity in each connection.
-
-Result : fixed parameters obtained but describing how to change each connection over time.
+* *Fact* : usual Neural Network trained with backpropagation have fixed connections weights that do not change once the training is complete.
+* *Argument* : in nature, the primary basis for long-term learning and memory in the brain is *synaptic plasticity*
+* *Challenge* : optimizing through gradient descent not only the base weights, but also the amount of plasticity in each connection.
+* *Result* : fixed parameters obtained but describing how to change each connection over time.
 
 In [[2016](https://arxiv.org/pdf/1609.02228.pdf)] paper they propose a time-dependent quantity for each connection
 in the network, called the **Hebbian trace** :
