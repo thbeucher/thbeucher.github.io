@@ -9,11 +9,13 @@ Link to my *[CV](cv.md)*.
 # Topics 
 
 * *[The transformer](transformer.md)*
+* *[Neural Plasticity](plasticity.md)*
 
 # Published work
 
 ---
 Site Map:
 * Transformer post -> *[Transformer](transformer.md)*
+* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
