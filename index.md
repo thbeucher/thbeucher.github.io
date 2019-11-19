@@ -16,6 +16,6 @@ Link to my *[CV](cv.md)*.
 ---
 Site Map:
 * Transformer post -> *[Transformer](transformer.md)*
-* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
+* Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
