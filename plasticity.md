@@ -66,13 +66,15 @@ where the **Clip** function can be :
 
 Two types of neuromodulation is proposed :
 
-1) a simple one that replace the time-fixed parameter <code>&eta;</code> by a time-varying scalar <code>M(t)</code> computed by the network. (The **Hebbian trace** definition become <code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)x<sub>i</sub>(t-1)x<sub>j</sub>(t))</code>)
+1) a simple one that replace the time-fixed parameter <code>&eta;</code> by a time-varying scalar <code>M(t)</code> computed by the network. The **Hebbian trace** definition become : 
 
-2) a more sophisticated one that try to mimic the effect of dopamine on plasticity. Here an **Eligibility trace** is defined as a simple exponential average of the Hebbian product of pre- and post-synaptic activity with trainable decay factor <code>&eta;</code>. Moreover the **Hebbian trace** is gated by the current dopamine signal <code>M(t)</code>. That give use the following equations:
+<code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)x<sub>i</sub>(t-1)x<sub>j</sub>(t))</code>
 
-    <code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)E<sub>i,j</sub>(t))</code>
+2) a more sophisticated one that try to mimic the effect of dopamine on plasticity. Here, an **Eligibility trace** is defined as a simple exponential average of the Hebbian product of pre- and post-synaptic activity with trainable decay factor <code>&eta;</code>. Moreover the **Hebbian trace** is gated by the current dopamine signal <code>M(t)</code>. That give use the following equations:
 
-    <code>E<sub>i,j</sub>(t+1) = &eta;x<sub>i</sub>(t-1)x<sub>j</sub>(t) + (1 - &eta;)E<sub>i,j</sub>(t)</code>
+<code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)E<sub>i,j</sub>(t))</code>
+
+<code>E<sub>i,j</sub>(t+1) = &eta;x<sub>i</sub>(t-1)x<sub>j</sub>(t) + (1 - &eta;)E<sub>i,j</sub>(t)</code>
 
 ---
 Site Map:
