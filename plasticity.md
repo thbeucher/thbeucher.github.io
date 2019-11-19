@@ -62,8 +62,17 @@ First the **Hebbian trace** definition become :
 where the **Clip** function can be :
 * a simple decay term (as in [[2016](https://arxiv.org/pdf/1609.02228.pdf)] paper)
 * a normalization implementing Oja's rule (as in [[2018](https://arxiv.org/pdf/1804.02464.pdf)] paper)
-* a simple hard clip (proposed in this new paper)
+* a simple hard clip (keeping value in [-1, 1], as proposed in this new paper)
 
+Two types of neuromodulation is proposed :
+
+1) a simple one that replace the time-fixed parameter <code>&eta;</code> by a time-varying scalar <code>M(t)</code> computed by the network. (The **Hebbian trace** definition become <code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)x<sub>i</sub>(t-1)x<sub>j</sub>(t))</code>)
+
+2) a more sophisticated one that try to mimic the effect of dopamine on plasticity. Here an **Eligibility trace** is defined as a simple exponential average of the Hebbian product of pre- and post-synaptic activity with trainable decay factor <code>&eta;</code>. Moreover the **Hebbian trace** is gated by the current dopamine signal <code>M(t)</code>. That give use the following equations:
+
+    <code>Hebb<sub>i,j</sub>(t+1) = Clip(Hebb<sub>i,j</sub>(t) + M(t)E<sub>i,j</sub>(t))</code>
+
+    <code>E<sub>i,j</sub>(t+1) = &eta;x<sub>i</sub>(t-1)x<sub>j</sub>(t) + (1 - &eta;)E<sub>i,j</sub>(t)</code>
 
 ---
 Site Map:
