@@ -46,4 +46,10 @@ Oja's rule is a modification of the standard Hebb's rule that allow, among other
 
 The **Hebbian trace** definition become :
 
-<code>****</code>
+<code>**Hebb<sub>k</sub>(t+1) = Hebb<sub>k</sub>(t) + &eta;y(t)(x<sub>k</sub>(t-1) - y(t)Hebb<sub>k</sub>(t))**</code>
+
+In fact, they change the notation as follow :
+
+<code>**Hebb<sub>i,j</sub>(t+1) = Hebb<sub>i,j</sub>(t) + &eta;x<sub>j</sub>(t)(x<sub>i</sub>(t-1) - x<sub>j</sub>(t)Hebb<sub>i,j</sub>(t))**</code>
+
+as, in the context of recurrent neural network, they put the plasticity component with the hidden state passed from previous step *t-1* (<code>**x<sub>i</sub>(t-1)**</code>) and current input gate (<code>**x<sub>j</sub>(t)**</code>). And instead of speaking about the connection of a neuron *k* with the current looked neuron, they use the notation for representing the connection between neurons *i* and *j*.
