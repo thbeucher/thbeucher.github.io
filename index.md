@@ -10,6 +10,7 @@ Link to my *[CV](cv.md)*.
 
 * *[The transformer](transformer.md)*
 * *[Neural Plasticity](plasticity.md)*
+* *[Automatic Speech Recognition](asr.md)*
 
 # Published work
 
@@ -17,5 +18,6 @@ Link to my *[CV](cv.md)*.
 Site Map:
 * Transformer post -> *[Transformer](transformer.md)*
 * Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
+* Automatic Speech Recognition -> *[ASR](asr.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
