@@ -14,8 +14,7 @@ Links that I found usefull when working on STT.
 ## Preprocessing Data
 
 * Great blog about audio signal preprocessing -> [Speech Processing](https://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html)
-* Python Library -> [pyfilterbank](http://siggigue.github.io/pyfilterbank/)
-* Another Python Library -> [SoundFile](https://github.com/bastibe/SoundFile/)
+* Python Library -> [pyfilterbank](http://siggigue.github.io/pyfilterbank/), [Librosa](https://librosa.github.io/librosa/), [SoundFile](https://github.com/bastibe/SoundFile/)
 * Kaggle example -> [Speech Recognition Challenge](https://www.kaggle.com/ybonde/log-spectrogram-and-mfcc-filter-bank-example)
 
 ## Papers
