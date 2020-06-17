@@ -60,4 +60,7 @@ In previous section we depicted the mechanism of one attention head so the multi
 ---
 Site Map:
 * Main Page -> *[Main](index.md)*
+* Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
+* Automatic Speech Recognition -> *[ASR](asr.md)*
+* Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
