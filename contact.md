@@ -6,5 +6,8 @@
 ---
 Site Map:
 * Main page -> *[Main](index.md)*
-* Curriculum Vitae -> *[CV](cv.md)*
 * Transformer page -> *[Transformer](transformer.md)*
+* Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
+* Automatic Speech Recognition -> *[ASR](asr.md)*
+* Curriculum Vitae -> [CV](cv.md)
+* Contact page -> *[Contact](contact.md)*
