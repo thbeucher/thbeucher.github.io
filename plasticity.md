@@ -80,5 +80,6 @@ Two types of neuromodulation is proposed :
 Site Map:
 * Main Page -> *[Main](index.md)*
 * Transformer post -> *[Transformer](transformer.md)*
+* Automatic Speech Recognition -> *[ASR](asr.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
