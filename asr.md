@@ -57,12 +57,12 @@ In the litterature, we usually found the use of Filter Banks or Mel-Frequency Ce
 For my Speech-to-Text(STT) project, I've decided to go on an End-to-End design, even for the input. Learning to perform STT task directly from raw signal is really hard and in the current state of our knowledge on artificial neural network(ANN), it requires too much labeled data. When you think about ourself, even with our advance big neural network designed through evolution, we are exposed to a lot of sound signal and it takes us almost a year to show sign that we understand some simple interaction and 3 years and more to be able to use words. We have leverage some labeled data when our parents repeat the same sound when pointing to a single object but most of our learning seems to be self-supervised.
 There is a lot of unlabelled sound data in the web, so maybe we can leverage it to allow our ANN to perform well at the task.
 
-The most obvious way to creates a self-supervised features representation is the generative option where you first downsample your signal, using a convolutional network for example, to obtain a more compact representation, you can also add a sparsity constraint, then you use another neural network, which can also be a convolutional network (using transposed convolution), to recreate the signal and your loss could be a simple MSE(Mean Squared Error).
+The first technic that came to my mind is Predictive Coding(PC) where the theory is that the brain creates and maintains a model of the environment by predicting the futur and compare its prediction to the reality. So, to creates our features representation in a self-supervised way, we can design an ANN that will first downsample the signal, using a convolutional network for example, to obtain a more compact representation (we can add a sparsity constraint on this representation), then we use another neural network, which can also be a convolutional network (using transposed convolution), to recreates the signal and the loss could be a simple Mean Squared Error(MSE). (One work that I found particularly interesting in this field is [SDPC](https://arxiv.org/pdf/1902.07651.pdf))
 The problem is that it will be computationally intensive and you will certainly struggle to fit, in your GPU, a big enough architecture that will have a good performance.
 
 Indeed, the usual sample rate of an audio signal is 44.1Khz. It means that you have 44,100 numerical values to describe each second of your record so even with a 2s audio record you will have an array of shape (88200,). In the case of openSLR dataset, the sample rate choosed is way lower, 16Khz, but it still give you big arrays for even small records.
 
-Another option could be a technic called Contrastive Learning.
+Another option could be a technic called Contrastive Learning (or Contrastive Predictive Coding).
 
 2) Architecture review
 3) Possible losses
