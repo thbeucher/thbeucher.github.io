@@ -46,7 +46,28 @@ One major problem for ASR with labeled data is the alignment between the audio s
 
 HMM and CTC models made a strong assumption about frame-independence, Seq2Seq models remove this assumption allowing them to learn an implicit LM and optimize WER more directly. (WER - Word Error Rate is the usual metric used to measure ASR models performance) 
 
-All those approaches are computationally heavy, and the recurrence used made parallelization impracticable. 
+All those approaches are computationally heavy, and the recurrence used made parallelization impracticable.
+
+---
+
+1) Input representation
+
+In the litterature, we usually found the use of Filter Banks or Mel-Frequency Cepstral Coefficients (MFCCs) as input features. They comes from extensive human engineering that aim to simulate how the human ear works.
+
+For my Speech-to-Text(STT) project, I've decided to go on an End-to-End design, even for the input. Learning to perform STT task directly from raw signal is really hard and in the current state of our knowledge on artificial neural network(ANN), it requires too much labeled data. When you think about ourself, even with our advance big neural network designed through evolution, we are exposed to a lot of sound signal and it takes us almost a year to show sign that we understand some simple interaction and 3 years and more to be able to use words. We have leverage some labeled data when our parents repeat the same sound when pointing to a single object but most of our learning seems to be self-supervised.
+There is a lot of unlabelled sound data in the web, so maybe we can leverage it to allow our ANN to perform well at the task.
+
+The most obvious way to creates a self-supervised features representation is the generative option where you first downsample your signal, using a convolutional network for example, to obtain a more compact representation, you can also add a sparsity constraint, then you use another neural network, which can also be a convolutional network (using transposed convolution), to recreate the signal and your loss could be a simple MSE(Mean Squared Error).
+The problem is that it will be computationally intensive and you will certainly struggle to fit, in your GPU, a big enough architecture that will have a good performance.
+
+Indeed, the usual sample rate of an audio signal is 44.1Khz. It means that you have 44,100 numerical values to describe each second of your record so even with a 2s audio record you will have an array of shape (88200,). In the case of openSLR dataset, the sample rate choosed is way lower, 16Khz, but it still give you big arrays for even small records.
+
+Another option could be a technic called Contrastive Learning.
+
+2) Architecture review
+3) Possible losses
+4) Training
+5) Evaluation
 
 ---
 Site Map:
