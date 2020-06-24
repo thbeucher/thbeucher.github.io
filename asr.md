@@ -70,7 +70,7 @@ Browsing the literature on Speech-to-Text task, we found various kind of archite
 
 The most famous one for the moment in NLP field, the Transformer.
 
-![transformer](images/transformer_encoder.jpg)
+![transformer](images/transformer_encoder.png)
 
 Even if there is now an official implementation in pytorch, I've made at the time my own and I've add option to use the version propose in the paper [Stabilizing Transformers For Reinforcement Learning](https://arxiv.org/pdf/1910.06764.pdf). You can find it [here](https://github.com/thbeucher/ML_pytorch/blob/master/apop/models/transformer/encoder.py).
 
@@ -168,7 +168,16 @@ class FeedForward(nn.Module):
     return self.ff(x)   # [batch_size, *, output_size]
 ```
 
+Now with these building blocks, we can create our network:
+
+![arch](images/STT_arch.png)
+
+where the features extractor is [wav2vec](https://arxiv.org/abs/1904.05862), the input projection and final projection are simple linears.
+
 3) Possible losses
+
+ASG, ASR, Cross-Entropy
+
 4) Training
 5) Evaluation
 
