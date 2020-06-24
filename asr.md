@@ -110,7 +110,7 @@ class ConvBlock(nn.Module):
     return self.conv(x)  # [batch_size, out_chan, seq_len] or [batch_size, out_chan // 2, seq_len] if k == 2
 ```
 
-* Lightweight convolution from [wu2019pay](https://openreview.net/pdf?id=SkVhlh09tX), I implement the basic one, not the dynamic version:
+* Convolution attention from [Lightconv](https://openreview.net/pdf?id=SkVhlh09tX), I implement the basic one, not the dynamic version:
 ```python
 class AttentionConvBlock(nn.Module):
   def __init__(self, in_chan, n_heads=8, kernel=5, dropout=0., pad=2, bias=True, **kwargs):
@@ -176,9 +176,11 @@ where the features extractor is [wav2vec](https://arxiv.org/abs/1904.05862), the
 
 3) Possible losses
 
-ASG, ASR, Cross-Entropy
+* ASG & CTC -> [ASG-CTC](https://towardsdatascience.com/better-faster-speech-recognition-with-wav2letters-auto-segmentation-criterion-765efd55449), [CTC](https://distill.pub/2017/ctc/), [CTC paper](https://www.cs.toronto.edu/~graves/icml_2006.pdf)
+* Cross-Entropy in the case where alignment is handle by using attention mechanism
 
 4) Training
+
 5) Evaluation
 
 ---
