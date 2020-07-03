@@ -110,7 +110,7 @@ class ConvBlock(nn.Module):
     return self.conv(x)  # [batch_size, out_chan, seq_len] or [batch_size, out_chan // 2, seq_len] if k == 2
 ```
 
-* Convolution attention from [Lightconv](https://openreview.net/pdf?id=SkVhlh09tX), I implement the basic one, not the dynamic version:
+* Convolution attention from [Lightconv](https://openreview.net/pdf?id=SkVhlh09tX):
 ```python
 class AttentionConvBlock(nn.Module):
   def __init__(self, in_chan, n_heads=8, kernel=5, dropout=0., pad=2, bias=True, **kwargs):
@@ -170,9 +170,243 @@ class FeedForward(nn.Module):
 
 Now with these building blocks, we can create our network:
 
-![arch](images/STT_arch.png)
+![arch](images/STT_arch_config.png)
 
 where the features extractor is [wav2vec](https://arxiv.org/abs/1904.05862), the input projection and final projection are simple linears.
+
+The model is made of multiple layers with multiple blocks, to allow multiple configurations using the same class model, we can design our class to be block/layer agnostic.
+
+```python
+class STTModel(nn.Module):
+  def __init__(self, config=None, residual=True, output_size=None, input_proj=None, wav2vec_frontend=True, **kwargs):
+    super().__init__()
+    self.config = config
+    self.output_proj = None
+    ## list all authorized blocks
+    self.available_blocks = {'conv_block': ConvBlock, 'attention_conv_block': AttentionConvBlock, 'feed_forward': FeedForward}
+    
+    ## retrieve features extractor
+    self.wav2vec = get_wav2vec_model() if wav2vec_frontend else None
+    
+    ## retrieve projection layer if desired
+    self.input_proj = get_input_proj_layer(config=input_proj)  # will return None if input_proj is None
+    
+    ## retrieve default config if not given
+    if config is None:
+      self.config = get_stt_model_config(config='base')
+    
+    ## define the network
+    layers = []
+    for layer in self.config:
+      blocks = []
+      for block in layer:
+        sub_blocks = []
+        for parallel_sub_block_type, block_config in block:
+          sub_blocks.append(self.available_blocks[parallel_sub_block_type](**block_config))
+        blocks.append(nn.ModuleList(sub_blocks))
+      layers.append(nn.ModuleList(blocks))
+    self.network = nn.ModuleList(layers)
+    
+    ## create the output projection if desired
+    if output_size is not None:
+      key = [k for k in ['output_size'] if k in self.config[-1][-1][-1][1]][0]
+      self.output_proj = nn.Linear(self.config[-1][-1][-1][1][key], output_size)
+    
+  @torch.no_grad()
+  def _wav2vec_forward(self, x):  # x = [batch_size, signal_len]
+    z = self.wav2vec.feature_extractor(x)  # n_feats = 512
+    c = self.wav2vec.feature_aggregator(z)  # [batch_size, n_feats, seq_len]
+    return c.permute(0, 2, 1)  # [batch_size, seq_len, n_feats]
+    
+  def forward(self, x, y=None):
+    if self.wav2vec is not None:
+      x = self._wav2vec_forward(x)
+    
+    if self.input_proj is not None:
+      x = self.input_proj(x)
+    
+    for i, layer in enumerate(self.network):
+      out = x
+      for j, block in enumerate(layer):
+        outs = []
+        for k, sub_block in enumerate(block):
+          if 'conv' in self.config[i][j][k][0]:
+            outs.append(sub_block(out.permute(0, 2, 1)).permute(0, 2, 1))
+          else:
+            outs.append(sub_block(out))
+        out = torch.cat(outs, dim=-1)
+      x = x + out if self.residual and out.shape == x.shape else out
+    
+    if self.output_proj is not None:
+      x = self.output_proj(x)
+    return x
+```
+
+where **get_wav2vec_model**, **get_input_proj_layer** and **get_stt_model_config** functions are defined as follow : 
+
+```python
+from fairseq.models.wav2vec import Wav2VecModel
+
+def get_wav2vec_model(filename='wav2vec_large.pt', eval_model=True):
+  checkpoint = torch.load(filename)
+  wav2vec_model = Wav2VecModel.build_model(checkpoint['args'], task=None)
+  wav2vec_model.load_state_dict(checkpoint['model'])
+  
+  if eval_model:
+    wav2vec_model.eval()
+  
+  return wav2vec_model
+
+def get_input_proj_layer(config='base'):
+  if config == 'base2':
+    input_proj = nn.Sequential(nn.Linear(512, 512), nn.ReLU(inplace=True), nn.LayerNorm(512), nn.Dropout(0.25))
+  else:
+    input_proj = nn.Sequential(nn.Dropout(0.25), nn.Linear(512, 512), nn.ReLU(inplace=True), nn.LayerNorm(512))
+  return input_proj
+
+
+def get_stt_model_config(config='base'):
+  if config == 'whatever':
+    raise NotImplementedError
+  else:
+    cnet_config = [
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ],
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ],
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ],
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 2, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ],
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ],
+                    [
+                      [
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 1,
+                                                       'dil_conv': 1, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 2,
+                                                       'dil_conv': 2, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True}),
+                        ('conv_attention_conv_block', {'in_chan': 512, 'out_chan': 512, 'kernel_conv': 3, 'stride_conv': 1, 'pad_conv': 3,
+                                                       'dil_conv': 3, 'dropout_conv': 0.25, 'groups': 1, 'k': 1, 'n_heads': 8,
+                                                       'kernel_attn': 5, 'dropout_attn': 0.25, 'pad_attn': 2, 'bias': True})
+                      ],
+                      [('feed_forward', {'input_size': 3 * 512, 'output_size': 512, 'd_ff': 2048, 'dropout': 0.25})]
+                    ]
+                  ]
+  return cnet_config
+```
+
+After our model, to use the [DataLoader](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader) from pytorch we have to define our custom dataset class and the associated collator : 
+
+```python
+from torch.utils.data import Dataset
+
+class CustomDataset(Dataset):
+  def __init__(self):
+    pass
+  
+  def __len__(self):
+    pass
+  
+  def __getitem__(self, idx):
+    pass
+
+class CustomCollator(object):
+  def __init__(self):
+    pass
+  
+  def __call__(self, batch):
+    pass
+```
+
+Now we can define a class that will handle the training, evaluation and everything else that we want : 
+
+```python
+class CTCTrainer(object):
+  def __init__(self):
+    pass
+  
+  def set_metadata(self):
+    pass
+  
+  def set_data_loader(self):
+    pass
+  
+  def instanciate_model(self):
+    pass
+  
+  def train(self):
+    pass
+  
+  def train_pass(self):
+    pass
+  
+  @torch.no_grad():
+  def evaluation(self):
+    pass
+```
 
 3) Possible losses
 
