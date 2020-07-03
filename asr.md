@@ -258,10 +258,10 @@ def get_wav2vec_model(filename='wav2vec_large.pt', eval_model=True):
   return wav2vec_model
 
 def get_input_proj_layer(config='base'):
-  if config == 'base2':
-    input_proj = nn.Sequential(nn.Linear(512, 512), nn.ReLU(inplace=True), nn.LayerNorm(512), nn.Dropout(0.25))
-  else:
+  if config == 'base':
     input_proj = nn.Sequential(nn.Dropout(0.25), nn.Linear(512, 512), nn.ReLU(inplace=True), nn.LayerNorm(512))
+  else:
+    input_proj = None
   return input_proj
 
 
