@@ -358,7 +358,116 @@ def get_stt_model_config(config='base'):
   return cnet_config
 ```
 
-After our model, to use the [DataLoader](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader) from pytorch we have to define our custom dataset class and the associated collator : 
+Now, to hold and preprocess the data we can define a Data class : 
+
+```python
+import soundfile as sf
+from jiwer import wer as wer_compute
+
+class Data(object):
+  def __init__(self):
+    self.vars_to_save = ['ids_to_audiofile_train', 'ids_to_audiofile_test', 'max_signal_len', 'max_source_len',
+                         'ids_to_transcript_train', 'ids_to_transcript_test', 'ids_to_encodedsources_train',
+                         'ids_to_encodedsources_test', 'idx_to_tokens', 'tokens_to_idx', 'n_signal_feats']
+
+    self.ids_to_audiofile_train = {}
+    self.ids_to_audiofile_test = {}
+    self.max_signal_len = 0
+    self.n_signal_feats = 0
+    
+    self.max_source_len = 0
+    self.ids_to_transcript_train = {}
+    self.ids_to_transcript_test = {}
+    self.ids_to_encodedsources_train = {}
+    self.ids_to_encodedsources_train = {}
+    self.idx_to_tokens = []
+    self.tokens_to_idx = {}
+  
+  def save_metadata(self, save_name='_Data_metadata.pk'):
+    metadata = {name: getattr(self, name) for name in self.vars_to_save}
+    with open(save_name, 'wb') as f:
+      pk.dump(metadata, f)
+  
+  def load_metadata(self, save_name='_Data_metadata.pk'):
+    with open(save_name, 'rb') as f:
+      metadata = pk.load(f)
+    for k, v in metadata.items():
+      setattr(self, k, v)
+  
+  @staticmethod
+  def read_audio_file(filename):
+    return sf.read(filename)
+  
+  @staticmethod
+  def raw_signal(signal, **kwargs):
+    return signal
+  
+  @staticmethod
+  def read_n_slice_signal(filename, slice_fn=None, **kwargs):
+    slice_fn = Data.raw_signal if slice_fn is None else slice_fn
+    signal, sample_rate = Data.read_audio_file(filename)
+    return slice_fn(signal, **kwargs)
+  
+  @staticmethod
+  def get_openslr_files(folder, key=None):
+    dataset_filelist = {'audio': [], 'transcript': []}
+
+    for fname in os.listdir(folder):
+      full_path_fname = os.path.join(folder, fname)
+      if os.path.isdir(full_path_fname):
+        for f2name in os.listdir(full_path_fname):
+          full_path_f2name = os.path.join(full_path_fname, f2name)
+          if os.path.isdir(full_path_f2name):
+            for f3name in os.listdir(full_path_f2name):
+              filename = os.path.join(full_path_f2name, f3name)
+              if '.flac' in f3name:
+                dataset_filelist['audio'].append(filename)
+              elif '.txt' in f3name:
+                dataset_filelist['transcript'].append(filename)
+    return dataset_filelist if key is None else dataset_filelist[key]
+  
+  @staticmethod
+  def letters_encoding(sources, idx_to_letters=None, letters_to_idx=None, blank_token='<blank>', **kwargs):
+    sources = [s.lower() for s in sources]
+    
+    if idx_to_letters is None or letters_to_idx is None:
+      letters = list(sorted(set([l for s in sources for l in s])))
+      idx_to_letters = [blank_token] + letters
+      letters_to_idx = {l: i for i, l in enumerate(idx_to_letters)}
+    
+    sources_encoded = [[letters_to_idx[l] for l in s] for s in sources]
+    return sources_encoded, idx_to_letters, letters_to_idx
+  
+  @staticmethod
+  def reconstruct_sentences(sentences, idx_to_tokens, blank_idx=0):
+    reconstructed_sentences = [[i for i, _ in groupby(p)] for s in sentences]
+    return [''.join([idx_to_tokens[i] for i in rs if i != blank_idx]) for rs in reconstructed_sentences]
+  
+  @staticmethod
+  def compute_wer(targets, predictions, idx_to_tokens, reconstruct=True, blank_idx=0):
+    if reconstruct:
+      targets = Data.reconstruct_sentences(targets, idx_to_tokens, blank_idx=blank_idx)
+      predictions = Data.reconstruct_sentences(predictions, idx_to_tokens, blank_idx=blank_idx)
+    return np.mean([wer_compute(t, p) for t, p in zip(targets, predictions)])
+  
+  @staticmethod
+  def read_openslr_transcript_file(filename):
+    with open(filename, 'r') as f:
+      transcripts = f.read().splitlines()
+    return zip(*[t.split(' ', 1) for t in transcripts])
+  
+  def get_transcripts(self, folder, list_files_fn=None, parse_fn=None, var_name='idx_to_transcript'):
+    list_files_fn = Data.get_openslr_files if list_files_fn is None else list_files_fn
+    parse_fn = Data.read_openslr_transcript_file if parse_fn is None else parse_fn
+    
+    ids_to_transcript = {}
+    for filename in list_files_fn(folder)
+  
+  def process_openslr_transcripts(self, train_folder, test_folder, encoding_fn=None, **kwargs):
+    encoding_fn = Data.letters_encoding if encoding_fn is None else encoding_fn
+```
+
+Then, to use the [DataLoader](https://pytorch.org/docs/stable/data.html?highlight=dataloader#torch.utils.data.DataLoader) from pytorch we have to define our custom dataset class and the associated collator : 
 
 ```python
 from torch.utils.data import Dataset
@@ -381,7 +490,7 @@ class CustomCollator(object):
     pass
 ```
 
-Now we can define a class that will handle the training, evaluation and everything else that we want : 
+Finally, we can define a class that will handle the training, evaluation and everything else that we want : 
 
 ```python
 class CTCTrainer(object):
