@@ -1,4 +1,4 @@
-![ESpaper](images/ES2017.png)
+![ESpaper](images/ES2017.pdf)
 
 ---
 
