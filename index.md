@@ -14,7 +14,6 @@ Link to my *[CV](cv.md)*.
 
 # Published work
 
-* *[Efficient Use of Word Embeddings for Short Text Classification](ESpaper.md)*
 * *[Efficient Use of Word Embeddings for Short Text Classification](https://thbeucher.github.io/images/ES2017.pdf)*
 
 ---
