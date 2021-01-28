@@ -473,21 +473,54 @@ Then, to use the [DataLoader](https://pytorch.org/docs/stable/data.html?highligh
 from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
-  def __init__(self):
-    pass
+  def __init__(self, ids_to_audiofile, ids_to_encodedsources, sort_by_target_len=True, **kwargs):
+    self.ids_to_audiofilefeatures = {i: f for i, f in ids_to_audiofile.items()}
+    self.ids_to_encodedsources = ids_to_encodedsources
+    self.identities = list(sorted(ids_to_encodedsources.keys()))
+
+    self.process_file_fn = kwargs.get('process_file_fn', Data.read_and_slice_signal)
+    kwargs['slice_fn'] = kwargs.get('slice_fn', Data.wav2vec_extraction)
+    kwargs['save_features'] = kwargs.get('save_features', True)
+    self.process_file_fn_args = kwargs
+
+    self.ids_input_lens = {}
+    if kwargs['slice_fn'] == Data.wav2vec_extraction or kwargs.get('use_wav2vec', True):
+      for i, f in self.ids_to_audiofilefeatures.items():
+        fname = f.replace('.flac', '.wav2vec_shape.pk')
+        if os.path.isfile(fname):
+          self.ids_input_lens[i] = pk.load(open(fname, 'rb'))[0]
+
+    if sort_by_target_len:
+      self.identities = CustomDataset._sort_by_targets_len(self.identities, ids_to_encodedsources)
+  
+  @staticmethod
+  def _sort_by_targets_len(ids, ids2es):
+    return list(map(lambda x: x[0], sorted([(i, len(ids2es[i])) for i in ids], key=lambda x: x[1])))
   
   def __len__(self):
-    pass
+    return len(self.identities)
   
   def __getitem__(self, idx):
-    pass
+    signal = self.process_file_fn(self.ids_to_audiofilefeatures[self.identities[idx]], **self.process_file_fn_args)
+    input_ = torch.Tensor(signal) if isinstance(signal, np.ndarray) else signal
+
+    target = torch.LongTensor(self.ids_to_encodedsources[self.identities[idx]])
+    input_len = self.ids_input_lens[self.identities[idx]] if self.identities[idx] in self.ids_input_lens else len(input_)
+    target_len = len(target)
+    return input_, target, input_len, target_len
 
 class CustomCollator(object):
-  def __init__(self):
-    pass
+  def __init__(self, audio_pad, text_pad):
+    self.audio_pad = audio_pad
+    self.text_pad = text_pad
   
   def __call__(self, batch):
-    pass
+    inputs, targets, input_lens, target_lens = zip(*batch)
+    inputs_batch = pad_sequence(inputs, batch_first=True, padding_value=self.audio_pad).float()
+    targets_batch = pad_sequence(targets, batch_first=True, padding_value=self.text_pad)
+    input_lens = torch.LongTensor(input_lens)
+    target_lens = torch.LongTensor(target_lens)
+    return inputs_batch, targets_batch, input_lens, target_lens
 ```
 
 Finally, we can define a class that will handle the training, evaluation and everything else that we want : 
