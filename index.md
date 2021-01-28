@@ -14,6 +14,8 @@ Link to my *[CV](cv.md)*.
 
 # Published work
 
+* *[Efficient Use of Word Embeddings for Short Text Classification](ESpaper.md)*
+
 ---
 Site Map:
 * Transformer post -> *[Transformer](transformer.md)*
