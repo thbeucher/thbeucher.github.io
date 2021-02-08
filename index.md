@@ -12,7 +12,7 @@ Link to my *[CV](cv.md)*.
 * *[Neural Plasticity](plasticity.md)*
 * *[Automatic Speech Recognition](asr.md)*
 
-# Published work
+# Papers
 
 * *[Efficient Use of Word Embeddings for Short Text Classification](https://thbeucher.github.io/images/ES2017.pdf)*
 
