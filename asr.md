@@ -104,9 +104,10 @@ The model is made of multiple layers with multiple blocks, to allow multiple con
 * ASG & CTC -> [ASG-CTC](https://towardsdatascience.com/better-faster-speech-recognition-with-wav2letters-auto-segmentation-criterion-765efd55449), [CTC](https://distill.pub/2017/ctc/), [CTC paper](https://www.cs.toronto.edu/~graves/icml_2006.pdf)
 * Cross-Entropy in the case where alignment is handle by using attention mechanism
 
-4) Training
+4) Experiments
 
-5) Evaluation
+You can find the code of an experiment that use the previous described architecture with CTC-loss and obtain a WER of 0.057 in my repository:
+[ctc_experiments.py](https://github.com/thbeucher/ML_pytorch/blob/master/apop/ASR/ctc_experiments.py)
 
 ---
 Site Map:
