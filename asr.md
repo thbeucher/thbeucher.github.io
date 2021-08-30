@@ -76,112 +76,38 @@ Even if there is now an official implementation in pytorch, I've made at the tim
 
 Taking ideas from papers [han2019](https://arxiv.org/pdf/1910.00716.pdf), [wu2019pay](https://openreview.net/pdf?id=SkVhlh09tX), [kriman2020quartznet](https://arxiv.org/pdf/1910.10261.pdf) and [hannun2019sequence](https://arxiv.org/pdf/1904.02619.pdf) we can creates 4 differents convolution architecture:
 
-* Separable Convolution: (I put it for information but I'm not sure about my implementation as I get fewer parameters as expected but it seems computationally not efficient)
-```python
-class SeparableConvBlock(nn.Module):
-  def __init__(self, in_chan, out_chan, kernel=3, stride=1, pad=1, dil=1, dropout=0., k=1, **kwargs):
-    super().__init__()
-    assert k in [1, 2], 'Handle only k = 1 or 2'
-    self.conv = nn.Sequential(nn.Conv1d(in_chan, k * in_chan, kernel, stride=stride, padding=pad, dilation=dil, groups=in_chan),
-                              nn.BatchNorm1d(k * in_chan),
-                              nn.ReLU(inplace=True) if k == 1 else nn.GLU(dim=1),
-                              nn.Dropout(dropout),
-                              nn.Conv1d(k * in_chan, out_chan, 1),
-                              nn.BatchNorm1d(out_chan),
-                              nn.ReLU(inplace=True),
-                              nn.Dropout(dropout))
-  
-  def forward(self, x):  # [batch_size, in_chan, seq_len]
-    return self.conv(x)  # [batch_size, out_chan, seq_len]
-```
+* Separable Convolution:
+
 
 * Basic convolutional block:
-```python
-class ConvBlock(nn.Module):
-  def __init__(self, in_chan, out_chan, kernel=3, stride=1, pad=1, dil=1, dropout=0., groups=1, k=1, **kwargs):
-    super().__init__()
-    assert k in [1, 2], 'Handle only k = 1 or 2'
-    self.conv = nn.Sequential(nn.Conv1d(in_chan, out_chan, kernel, stride=stride, padding=pad, dilation=dil, groups=groups),
-                              nn.BatchNorm1d(out_chan),
-                              nn.ReLU(inplace=True) if k == 1 else nn.GLU(dim=1),
-                              nn.Dropout(dropout))
-  
-  def forward(self, x):  # [batch_size, in_chan, seq_len]
-    return self.conv(x)  # [batch_size, out_chan, seq_len] or [batch_size, out_chan // 2, seq_len] if k == 2
-```
 
-* Convolution attention from [Lightconv](https://openreview.net/pdf?id=SkVhlh09tX), I implement the basic one, not the dynamic version:
-```python
-class AttentionConvBlock(nn.Module):
-  def __init__(self, in_chan, n_heads=8, kernel=5, dropout=0., pad=2, bias=True, **kwargs):
-    super().__init__()
-    assert in_chan // n_heads * n_heads == in_chan, 'in_chan must be evenly divisible by n_heads'
-    self.n_heads = n_heads
-    self.dropout = dropout
-    self.pad = pad
-    self.bias = None
 
-    self.weight = nn.Parameter(torch.Tensor(n_heads, 1, kernel))
-    nn.init.xavier_uniform_(self.weight)
+* Convolution attention from [Lightconv](https://openreview.net/pdf?id=SkVhlh09tX):
 
-    if bias:
-      self.bias = nn.Parameter(torch.Tensor(in_chan))
-      nn.init.constant_(self.bias, 0.)
-  
-  def forward(self, x):  # [batch_size, in_chan, seq_len]
-    in_ = x.reshape(-1, self.n_heads, x.size(2))
-    weight = F.dropout(F.softmax(self.weight, dim=-1), self.dropout, training=self.training)
-    out = F.conv1d(in_, weight, padding=self.pad, groups=self.n_heads).reshape(x.shape)
-
-    if self.bias is not None:
-      out = out + self.bias.view(1, -1, 1)
-    return out
-```
 
 * Combination of a ConvBlock and an AttentionConvBlock:
-```python
-class ConvAttentionConvBlock(nn.Module):
-  def __init__(self, in_chan, out_chan, kernel_conv=3, stride_conv=1, pad_conv=1, dil_conv=1, dropout_conv=0., groups=1, k=1,
-               n_heads=8, kernel_attn=5, dropout_attn=0., pad_attn=2, bias=True):
-    super().__init__()
-    self.conv = ConvBlock(in_chan, out_chan, kernel=kernel_conv, stride=stride_conv, pad=pad_conv, dil=dil_conv, dropout=dropout_conv,
-                          groups=groups, k=k)
-    self.attn_conv = AttentionConvBlock(out_chan//k, n_heads=n_heads, kernel=kernel_attn, dropout=dropout_attn, pad=pad_attn, bias=bias)
-  
-  def forward(self, x):  # [batch_size, in_chan, seq_len]
-    return self.attn_conv(self.conv(x))
-```
+
 
 We can also add a simple feed-forward network:
-```python
-class FeedForward(nn.Module):
-  def __init__(self, input_size, output_size, d_ff=2048, dropout=0., **kwargs):
-    super().__init__()
-    self.ff = nn.Sequential(nn.Linear(input_size, d_ff),
-                            nn.ReLU(inplace=True),
-                            nn.Dropout(dropout),
-                            nn.Linear(d_ff, output_size),
-                            nn.Dropout(dropout),
-                            nn.LayerNorm(output_size))
-  
-  def forward(self, x):  # [batch_size, *, input_size]
-    return self.ff(x)   # [batch_size, *, output_size]
-```
+
 
 Now with these building blocks, we can create our network:
 
-![arch](images/STT_arch.png)
+![arch](images/STT_arch_config.png)
 
 where the features extractor is [wav2vec](https://arxiv.org/abs/1904.05862), the input projection and final projection are simple linears.
+
+The model is made of multiple layers with multiple blocks, to allow multiple configurations using the same class model, we can design our class to be block/layer agnostic.
 
 3) Possible losses
 
 * ASG & CTC -> [ASG-CTC](https://towardsdatascience.com/better-faster-speech-recognition-with-wav2letters-auto-segmentation-criterion-765efd55449), [CTC](https://distill.pub/2017/ctc/), [CTC paper](https://www.cs.toronto.edu/~graves/icml_2006.pdf)
 * Cross-Entropy in the case where alignment is handle by using attention mechanism
 
-4) Training
+4) Experiments
 
-5) Evaluation
+You can find the code of an experiment that use the previous described architecture with CTC-loss and obtain a WER of 0.057 in my repository:
+[ctc_experiments.py](https://github.com/thbeucher/ML_pytorch/blob/master/apop/ASR/ctc_experiments.py)
 
 ---
 Site Map:
