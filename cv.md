@@ -1,4 +1,4 @@
-![CV](images/CV_thomas-beucher_2021.png)
+![CV](images/CV_thomas-beucher_2021_EN.png)
 
 ---
 
