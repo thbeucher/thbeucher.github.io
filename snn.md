@@ -28,13 +28,42 @@ Content:
 6. Visualization
 
 ## Image Transformation using a simple retinal model
-We use Difference of Gaussian (DoG) filtering as our retinal model. It well approximates the center-surround property of the Retinal Ganglion Cells (RGC).
+We use Difference of Gaussian ([DoG](https://en.wikipedia.org/wiki/Difference_of_Gaussians)) filtering as our retinal model. It well approximates the center-surround property of the Retinal Ganglion Cells (RGC).
 
-So the detection of positive or negative contrasts done by respectively ON-center and OFF-center RGC will be modelled by two DoG kernels. So our filter will correspond to the application of these kernels to our image through convolution operation.
+So the detection of positive or negative contrasts done by respectively ON-center and OFF-center RGC will be modelled by two DoG kernels. Our filter will correspond to the application of these kernels to an image using convolution operation.
 
 To implement our filter we will first create a function ```construct_DoG_kernel``` and a class ```DoGKernel``` :
 ![dog_code_visual](images/dog_code_visual.png)
-The plots are created with ```kernel_size=1, sigma1=1, sigma2=2``` and using this line of code :
+The plots are created with ```kernel_size=1, sigma1=1, sigma2=2``` and using a line of code like this one :
 ```python
 sns.heatmap(dog, linewidths=.5, annot=True, fmt='.2f', cbar=False, xticklabels=False, yticklabels=False)
+```
+Now we can create our class ```Filter``` : 
+```python
+class Filter(object):
+  def __init__(self, configuration):
+    base_configuration = {'kernel_type': DoGKernel,
+                          'kernels_conf': [[3, 3/9, 6/9], [3, 6/9, 3/9],
+                                          [7, 7/9, 14/9], [7, 14/9, 7/9],
+                                          [13, 13/9, 26/9], [13, 26/9, 13/9]],
+                          'padding': 6,
+                          'threshold': 50, 'use_threshold': True}
+    self.configuration = {**base_configuration, **configuration}
+    # creates kernels and pad smaller kernels to fit biggest one
+    self.max_kernel_size = max([conf[0] for conf in self.configuration['kernels_conf']])
+    
+    kernels = []
+    for conf in self.configuration['kernels_conf']:
+      kernel = self.configuration['kernel_type'](*conf)().unsqueeze(0)
+      pad = (self.max_kernel_size - conf[0]) // 2
+      kernels.append(torch.nn.functional.pad(kernel, (pad, pad, pad, pad)))
+        
+    self.kernels = torch.stack(kernels)
+  
+  def __call__(self, x):  # x = (1, 1, height, width)
+    out = torch.nn.functional.conv2d(x, self.kernels, padding=self.configuration['padding'])
+    
+    if self.configuration['use_threshold']:
+      out = torch.where(out < self.configuration['threshold'], torch.zeros(1), out)
+    return out
 ```
