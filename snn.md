@@ -33,26 +33,8 @@ We use Difference of Gaussian (DoG) filtering as our retinal model. It well appr
 So the detection of positive or negative contrasts done by respectively ON-center and OFF-center RGC will be modelled by two DoG kernels. So our filter will correspond to the application of these kernels to our image through convolution operation.
 
 To implement our filter we will first create a function ```construct_DoG_kernel``` and a class ```DoGKernel``` :
-```python
-def construct_DoG_kernel(kernel_size, sigma1, sigma2, to_tensor=False):
-  ks = kernel_size // 2
-  ker_x, ker_y = np.mgrid[-ks:ks+1, -ks:ks+1]
-  ker_prd = ker_x**2 + ker_y**2
-  gauss1 = 1 / sigma1**2 * np.exp(-1 / (2 * sigma1**2) * ker_prd)
-  gauss2 = 1 / sigma2**2 * np.exp(-1 / (2 * sigma2**2) * ker_prd)
-  dog = 1 / (2 * math.pi) * (gauss1 - gauss2)
-  dog = dog - np.mean(dog)
-  dog = dog / np.max(dog)
-  return torch.FloatTensor(dog) if to_tensor else dog
-
-class DoGKernel(object):
-  def __init__(self, kernel_size, sigma1, sigma2, to_tensor=True):
-    self.kernel_size = kernel_size
-    self.sigma1 = sigma1
-    self.sigma2 = sigma2
-    self.to_tensor = to_tensor
-  
-  def __call__(self):
-    return construct_DoG_kernel(self.kernel_size, self.sigma1, self.sigma2, to_tensor=self.to_tensor)
-```
 ![dog_code_visual](images/dog_code_visual.png)
+The plots are created with ```kernel_size=1, sigma1=1, sigma2=2``` and using this line of code :
+```python
+sns.heatmap(dog, linewidths=.5, annot=True, fmt='.2f', cbar=False, xticklabels=False, yticklabels=False)
+```
