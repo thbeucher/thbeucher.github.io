@@ -1,4 +1,3 @@
-# Thomas Beucher
 # Curriculum
 
 Passionate about nature intelligence, I want to understand its secrets and that's why I naturally turn my career in machine learning area.
