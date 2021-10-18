@@ -1,3 +1,7 @@
 theme: jekyll-theme-cayman
-title: Thomas Beucher Lamacque
+title: Thomas Beucher
 description: Welcome to my website, you will find some of my work here.
+titles_from_headings:
+  enabled:     false
+  strip_title: true
+  collections: true 
