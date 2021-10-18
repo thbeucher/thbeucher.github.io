@@ -55,3 +55,4 @@ class DoGKernel(object):
   def __call__(self):
     return construct_DoG_kernel(self.kernel_size, self.sigma1, self.sigma2, to_tensor=self.to_tensor)
 ```
+![dog_code_visual](images/dog_code_visual.png)
