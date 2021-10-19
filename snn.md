@@ -18,7 +18,7 @@ Overview schema :
 Content:
 
 1. Image transformation using a simple retinal model
-2. Temporal transformation using rand-order coding scheme
+2. Temporal transformation using rank-order coding scheme
 3. Spiking Deep Convolutional Network Learning using STDP and R-STDP
     1. Neural architecture / Neuron model
     2. Neuron competition / Winners election
@@ -94,3 +94,12 @@ img_filtered = Image.fromarray(gray_img_filtered.squeeze(0).squeeze(0).numpy().a
 img_filtered_threshold = Image.fromarray(gray_img_filtered_threshold.squeeze(0).squeeze(0).numpy().astype(np.uint8), mode='L')
 ipyplot.plot_images([gray_img, img_filtered, img_filtered_threshold], ['original', 'DoG filtered', 'DoG filtered with thresholding'], max_images=3, img_width=300)
 ```
+Now that we are able to mimic our retinal ganglion cells and obtain a contrast level information, we can apply the choosen neural coding scheme.
+
+Here a schema that resume and visualize what we have done in this first step : 
+![step1_schema](images/img_transfo_using_DoG.png)
+
+## Temporal transformation using rank-order coding scheme
+Now we want to convert contrast informations into spikes where the DoG cells [retinotopically arranged](https://medical-dictionary.thefreedictionary.com/retinotopic+map) that are the most activated (ie highest contrast) will fire first. This simple scheme have demonstrate ([Rullen and Thorpe](https://www.researchgate.net/publication/11952248_Rate_Coding_Versus_Temporal_Order_Coding_What_the_Retinal_Ganglion_Cells_Tell_the_Visual_Cortex)) efficient information transmission and it's computationally very simple.
+
+![intensity_to_latency](images/intensity_to_latency.png)
