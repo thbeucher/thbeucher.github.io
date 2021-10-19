@@ -11,6 +11,7 @@ Link to my *[CV](cv.md)*.
 * *[The transformer](transformer.md)*
 * *[Neural Plasticity](plasticity.md)*
 * *[Automatic Speech Recognition](asr.md)*
+* *[Spiking Neural Network](snn.md)*
 
 # Papers
 
@@ -18,8 +19,9 @@ Link to my *[CV](cv.md)*.
 
 ---
 Site Map:
-* Transformer post -> *[Transformer](transformer.md)*
-* Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
+* Transformer -> *[Transformer](transformer.md)*
+* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
 * Automatic Speech Recognition -> *[ASR](asr.md)*
+* Spiking Neural Network -> *[SNN](snn.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*

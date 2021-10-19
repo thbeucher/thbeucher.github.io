@@ -170,3 +170,11 @@ In this experiment we use the architecture from ([Mozafari et Al](https://arxiv.
 ![architecture](images/SDCNN_architecture.png)
 
 So we have 3 convolution layers and 3 pooling layers. Only the convolution layers are trainable, they are composed of non-leaky integrate-and-fire neurons retinotopically organized.
+
+Site Map:
+* Transformer -> *[Transformer](transformer.md)*
+* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
+* Automatic Speech Recognition -> *[ASR](asr.md)*
+* Spiking Neural Network -> *[SNN](snn.md)*
+* Curriculum Vitae -> [CV](cv.md)
+* Contact page -> *[Contact](contact.md)*

@@ -5,9 +5,9 @@
 
 ---
 Site Map:
-* Main page -> *[Main](index.md)*
-* Transformer page -> *[Transformer](transformer.md)*
-* Neural Plasticity post -> *[Neural Plasticity](plasticity.md)*
+* Transformer -> *[Transformer](transformer.md)*
+* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
 * Automatic Speech Recognition -> *[ASR](asr.md)*
+* Spiking Neural Network -> *[SNN](snn.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*

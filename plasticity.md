@@ -78,8 +78,9 @@ Two types of neuromodulation is proposed :
 
 ---
 Site Map:
-* Main Page -> *[Main](index.md)*
-* Transformer post -> *[Transformer](transformer.md)*
+* Transformer -> *[Transformer](transformer.md)*
+* Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
 * Automatic Speech Recognition -> *[ASR](asr.md)*
+* Spiking Neural Network -> *[SNN](snn.md)*
 * Curriculum Vitae -> [CV](cv.md)
 * Contact page -> *[Contact](contact.md)*
