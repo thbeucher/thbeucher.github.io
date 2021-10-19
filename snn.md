@@ -100,6 +100,6 @@ Here a schema that resume and visualize what we have done in this first step :
 ![step1_schema](images/img_transfo_using_DoG.png)
 
 ## Temporal transformation using rank-order coding scheme
-Now we want to convert contrast informations into spikes where the DoG cells [retinotopically arranged](https://medical-dictionary.thefreedictionary.com/retinotopic+map) that are the most activated (ie highest contrast) will fire first. This simple scheme have demonstrate ([Rullen and Thorpe](https://www.researchgate.net/publication/11952248_Rate_Coding_Versus_Temporal_Order_Coding_What_the_Retinal_Ganglion_Cells_Tell_the_Visual_Cortex)) efficient information transmission and it's computationally very simple.
+Now we want to convert contrast informations into spikes where the DoG cells, [retinotopically arranged](https://medical-dictionary.thefreedictionary.com/retinotopic+map), that are the most activated (ie highest contrast) will fire first. This simple scheme have demonstrate ([Rullen and Thorpe](https://www.researchgate.net/publication/11952248_Rate_Coding_Versus_Temporal_Order_Coding_What_the_Retinal_Ganglion_Cells_Tell_the_Visual_Cortex)) efficient information transmission and it's computationally very simple.
 
-![intensity_to_latency](images/intensity_to_latency.png)
+![intensity_to_latency](images/intensity_to_latency2.png)
