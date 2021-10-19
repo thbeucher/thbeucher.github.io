@@ -121,7 +121,7 @@ Moreover, to mimic the visual cortex organization of the brain, we organize the 
 
 So a naive implementation could be to process timestep by timestep and keeping in memory the accumulate potential value of every neuron membrane to be able to know when each neuron emit or not a spike. But it's possible to obtain the output train spikes doing only one 2-D convolution computation by create our input spikes in an accumulative manner.
 
-Let's create our ```cumulative_intensity_to_latency``` function that will operate this transformation.
+Let's create our ```cumulative_intensity_to_latency``` function that will operate this transformation : 
 
 ```python
 def cumulative_intensity_to_latency(intensities, n_time_steps, to_spike=True):
@@ -148,5 +148,8 @@ def cumulative_intensity_to_latency(intensities, n_time_steps, to_spike=True):
   out = torch.stack(bins_intensities)
   return out.sign() if to_spike else out
 ```
+Let's try to visualize this transformation using a fake example : 
+![cumulative_schema](images/cumulative_intensity_to_latency_schema.png)
 
+And what this transformation on MNIST data look like : 
 ![intensity_to_latency](images/intensity_to_latency2.png)
