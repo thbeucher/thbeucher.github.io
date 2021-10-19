@@ -43,10 +43,8 @@ Now we can create our class ```Filter``` :
 class Filter(object):
   def __init__(self, configuration):
     base_configuration = {'kernel_type': DoGKernel,
-                          'kernels_conf': [[3, 3/9, 6/9], [3, 6/9, 3/9],
-                                          [7, 7/9, 14/9], [7, 14/9, 7/9],
-                                          [13, 13/9, 26/9], [13, 26/9, 13/9]],
-                          'padding': 6,
+                          'kernels_conf': [[7, 1, 2], [7, 2, 1]],
+                          'padding': 3,
                           'threshold': 50, 'use_threshold': True}
     self.configuration = {**base_configuration, **configuration}
     # creates kernels and pad smaller kernels to fit biggest one
@@ -54,10 +52,12 @@ class Filter(object):
     
     kernels = []
     for conf in self.configuration['kernels_conf']:
+      # kernel shape = (1, kernel_size, kernel_size)
       kernel = self.configuration['kernel_type'](*conf)().unsqueeze(0)
       pad = (self.max_kernel_size - conf[0]) // 2
       kernels.append(torch.nn.functional.pad(kernel, (pad, pad, pad, pad)))
-        
+    
+    # self.kernels shape = (n_kernels, 1, kernel_size, kernel_size) 
     self.kernels = torch.stack(kernels)
   
   def __call__(self, x):  # x = (1, 1, height, width)
@@ -66,4 +66,31 @@ class Filter(object):
     if self.configuration['use_threshold']:
       out = torch.where(out < self.configuration['threshold'], torch.zeros(1), out)
     return out
+```
+As you see, we add an option to allow the DoG cells to output their values only if their activations are above a certain threshold. It will clean the image by removing noise and keep only the most important informations as you can see in the example below on an astronaut image : 
+![astronaut](images/astronaut_dog_filtering_w_or_wo_threshold.png)
+The above plot is generated on a jupyter notebook using the following code : 
+```python
+%matplotlib inline
+import torch
+import ipyplot
+import torchvision.transforms as transforms
+
+from PIL import Image
+from skimage import data
+
+img_arr = data.astronaut()
+gray_img_arr = transforms.functional.rgb_to_grayscale(torch.from_numpy(img_arr).permute(2, 0, 1))
+gray_img = Image.fromarray(gray_img_arr.squeeze(0).numpy().astype(np.uint8), mode='L')
+
+# Filter is the class implemented above
+filters = Filter({'kernels_conf': [[7, 1, 2]], 'padding': 3, 'use_threshold': False})
+filters_threshold = Filter({'kernels_conf': [[7, 1, 2]], 'padding': 3})
+
+gray_img_filtered = filters(gray_img_arr.float().unsqueeze(0))
+gray_img_filtered_threshold = filters_threshold(gray_img_arr.float().unsqueeze(0))
+
+img_filtered = Image.fromarray(gray_img_filtered.squeeze(0).squeeze(0).numpy().astype(np.uint8), mode='L')
+img_filtered_threshold = Image.fromarray(gray_img_filtered_threshold.squeeze(0).squeeze(0).numpy().astype(np.uint8), mode='L')
+ipyplot.plot_images([gray_img, img_filtered, img_filtered_threshold], ['original', 'DoG filtered', 'DoG filtered with thresholding'], max_images=3, img_width=300)
 ```
