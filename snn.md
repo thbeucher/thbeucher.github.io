@@ -149,7 +149,9 @@ def cumulative_intensity_to_latency(intensities, n_time_steps, to_spike=True):
   return out.sign() if to_spike else out
 ```
 Let's try to visualize this transformation using a fake example : 
+
 ![cumulative_schema](images/cumulative_intensity_to_latency_schema.png)
 
 And what this transformation on MNIST data look like : 
+
 ![intensity_to_latency](images/intensity_to_latency2.png)
