@@ -33,7 +33,9 @@ We use Difference of Gaussian ([DoG](https://en.wikipedia.org/wiki/Difference_of
 So the detection of positive or negative contrasts done by respectively ON-center and OFF-center RGC will be modelled by two DoG kernels. Our filter will correspond to the application of these kernels to an image using convolution operation.
 
 To implement our filter we will first create a function ```construct_DoG_kernel``` and a class ```DoGKernel``` :
+
 ![dog_code_visual](images/dog_code_visual.png)
+
 The plots are created with ```kernel_size=1, sigma1=1, sigma2=2``` and using a line of code like this one :
 ```python
 sns.heatmap(dog, linewidths=.5, annot=True, fmt='.2f', cbar=False, xticklabels=False, yticklabels=False)
@@ -68,7 +70,9 @@ class Filter(object):
     return out
 ```
 As you see, we add an option to allow the DoG cells to output their values only if their activations are above a certain threshold. It will clean the image by removing noise and keep only the most important informations as you can see in the example below on an astronaut image : 
+
 ![astronaut](images/astronaut_dog_filtering_w_or_wo_threshold.png)
+
 The above plot is generated on a jupyter notebook using the following code : 
 
 <details>
@@ -106,6 +110,7 @@ ipyplot.plot_images([gray_img, img_filtered, img_filtered_threshold], ['original
 Now that we are able to mimic our retinal ganglion cells and obtain a contrast level information, we can apply the choosen neural coding scheme.
 
 Here a schema that resume and visualize what we have done in this first step : 
+
 ![step1_schema](images/img_transfo_using_DoG.png)
 
 ## Temporal transformation using rank-order coding scheme
