@@ -160,3 +160,13 @@ Let's try to visualize this transformation using a fake example :
 And what this transformation on MNIST data look like : 
 
 ![intensity_to_latency](images/intensity_to_latency2.png)
+
+Now that we have our inputs as spike trains we can define our network and how the learning is performed.
+
+## Spiking Deep Convolutional Network Learning using STDP and R-STDP
+
+In this experiment we use the architecture from ([Mozafari et Al](https://arxiv.org/abs/1804.00227)) depicted in the following schema : 
+
+![architecture](images/SDCNN_architecture.png)
+
+So we have 3 convolution layers and 3 pooling layers. Only the convolution layers are trainable, they are composed of non-leaky integrate-and-fire neurons retinotopically organized.
