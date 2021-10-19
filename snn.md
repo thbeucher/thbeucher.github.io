@@ -114,4 +114,39 @@ Now we want to convert contrast informations into spikes where the DoG cells, [r
 We will add to our 3-D tensor ```(n_DoG_kernels, image_height, image_width)``` a fourth dimension that correspond to time.
 But before that I have to add some context to explain how we will perform our temporal transformation.
 
+In this experiment we use the biological neuron model called [Perfect Integrate-and-fire](https://en.wikipedia.org/wiki/Biological_neuron_model#Leaky_integrate-and-fire)
+that simply accumulates input spikes from presynaptic neurons and emit a spike if the membrane potential reach a specific threshold.
+
+Moreover, to mimic the visual cortex organization of the brain, we organize the neurons in a retinopically way using convolution operation and shared sets of synaptic weights as each formed map should detect the same visual feature but at different locations.
+
+So a naive implementation could be to process timestep by timestep and keeping in memory the accumulate potential value of every neuron membrane to be able to know when each neuron emit or not a spike. But it's possible to obtain the output train spikes doing only one 2-D convolution computation by create our input spikes in an accumulative manner.
+
+Let's create our ```cumulative_intensity_to_latency``` function that will operate this transformation.
+
+```python
+def cumulative_intensity_to_latency(intensities, n_time_steps, to_spike=True):
+  # bin size to get all non-zero intensities into the n_time_steps defined
+  bin_size = torch.count_nonzero(intensities) // n_time_steps
+
+  # flattening intensities then sort it
+  intensities_flattened_sorted = torch.sort(intensities.view(-1), descending=True)
+
+  # split intensities into n_time_steps bins
+  sorted_bins_value = torch.split(intensities_flattened_sorted[0], bin_size)
+  sorted_bins_idx = torch.split(intensities_flattened_sorted[1], bin_size)
+  
+  spike_map = torch.zeros(intensities_flattened_sorted[0].shape)
+  
+  # create spikes map step by step in a cumulative manner
+  # ie when a neuron emite a spike, we propagate it to all next timesteps
+  bins_intensities = []
+  for i in range(n_time_steps):
+    spike_map.scatter_(0, sorted_bins_idx[i], sorted_bins_value[i])  # cumulative line
+    bins_intensities.append(spike_map.clone().reshape(intensities.shape[1:]))
+  
+  # shape = (n_timesteps, n_filters, height, width)
+  out = torch.stack(bins_intensities)
+  return out.sign() if to_spike else out
+```
+
 ![intensity_to_latency](images/intensity_to_latency2.png)
