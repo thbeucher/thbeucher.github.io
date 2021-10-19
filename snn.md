@@ -70,6 +70,11 @@ class Filter(object):
 As you see, we add an option to allow the DoG cells to output their values only if their activations are above a certain threshold. It will clean the image by removing noise and keep only the most important informations as you can see in the example below on an astronaut image : 
 ![astronaut](images/astronaut_dog_filtering_w_or_wo_threshold.png)
 The above plot is generated on a jupyter notebook using the following code : 
+
+<details>
+<summary> Click to expand!</summary>
+<p>
+
 ```python
 %matplotlib inline
 import torch
@@ -94,6 +99,10 @@ img_filtered = Image.fromarray(gray_img_filtered.squeeze(0).squeeze(0).numpy().a
 img_filtered_threshold = Image.fromarray(gray_img_filtered_threshold.squeeze(0).squeeze(0).numpy().astype(np.uint8), mode='L')
 ipyplot.plot_images([gray_img, img_filtered, img_filtered_threshold], ['original', 'DoG filtered', 'DoG filtered with thresholding'], max_images=3, img_width=300)
 ```
+
+</p>
+</details>
+
 Now that we are able to mimic our retinal ganglion cells and obtain a contrast level information, we can apply the choosen neural coding scheme.
 
 Here a schema that resume and visualize what we have done in this first step : 
@@ -101,5 +110,8 @@ Here a schema that resume and visualize what we have done in this first step :
 
 ## Temporal transformation using rank-order coding scheme
 Now we want to convert contrast informations into spikes where the DoG cells, [retinotopically arranged](https://medical-dictionary.thefreedictionary.com/retinotopic+map), that are the most activated (ie highest contrast) will fire first. This simple scheme have demonstrate ([Rullen and Thorpe](https://www.researchgate.net/publication/11952248_Rate_Coding_Versus_Temporal_Order_Coding_What_the_Retinal_Ganglion_Cells_Tell_the_Visual_Cortex)) efficient information transmission and it's computationally very simple.
+
+We will add to our 3-D tensor ```(n_DoG_kernels, image_height, image_width)``` a fourth dimension that correspond to time.
+But before that I have to add some context to explain how we will perform our temporal transformation.
 
 ![intensity_to_latency](images/intensity_to_latency2.png)
