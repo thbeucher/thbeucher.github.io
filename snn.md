@@ -72,7 +72,7 @@ As you see, we add an option to allow the DoG cells to output their values only 
 The above plot is generated on a jupyter notebook using the following code : 
 
 <details>
-<summary> Click to expand!</summary>
+<summary><strong>Click to expand!</strong></summary>
 <p>
 
 ```python
