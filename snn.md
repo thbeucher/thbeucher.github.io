@@ -206,6 +206,16 @@ class Convolution(nn.Module):
                                 padding=self.padding if padding is None else padding,
                                 dilation=self.dilation, groups=self.groups)
 ```
+And our ```fire``` function : 
+```python
+def fire(potentials, threshold=None, return_thresholded_potentials=False):
+  thresholded = potentials.clone()
+  if threshold is None:
+    thresholded[:-1]=0
+  else:
+    torch.nn.functional.threshold_(thresholded, threshold, 0)
+  return (thresholded.sign(), thresholded) if return_thresholded_potentials else thresholded.sign()
+```
 Now to train the first two layer of our network, we will use [STDP](https://en.wikipedia.org/wiki/Spike-timing-dependent_plasticity) process. This process will adjust the synaptic strengths based on relative timing between post-synaptic and pre-synaptic spikes. So it performs two type of action : 
 * [long-term potentiation](https://en.wikipedia.org/wiki/Long-term_potentiation) (LTP)
 * [long-term depression](https://en.wikipedia.org/wiki/Long-term_depression) (LTD)
@@ -214,7 +224,7 @@ LTP will occur if the neuron emit a spike right after being stimulated, otherwis
 
 <img src="https://latex.codecogs.com/svg.image?\Delta w_{ij} = \begin{cases} a^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ a^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}" />
 
-where i and j represent respectively indices of post- and pre-synaptic neurons and the term <img src="https://latex.codecogs.com/svg.image?w_{ij}(1 - w_{ij})" /> correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
+where i and j represent respectively indices of post- and pre-synaptic neurons, **a<sup>+</sup>** and **a<sup>-</sup>** are the learning rate for LTP & LTD and the term <img src="https://latex.codecogs.com/svg.image?w_{ij}(1 - w_{ij})" /> correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
 
 ---
 Site Map:
