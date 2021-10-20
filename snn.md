@@ -185,13 +185,36 @@ To be able to detect a certain amount of visual features regardless of its locat
 
 We can now implement our convolutional layer the following way : 
 ```python
+class Convolution(nn.Module):
+  def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=None,
+               weight_mean=0.8, weight_std=0.02, *args, **kwargs):
+    super().__init__()
+    self.in_channels = in_channels
+    self.out_channels = out_channels
+    self.kernel_size = kernel_size if isinstance(kernel_size, tuple) else (kernel_size, kernel_size)
+    self.stride = stride
+    self.padding = padding
+    self.dilation = dilation
+    self.groups = groups
+    self.bias = bias
 
+    self.weights = nn.Parameter(torch.Tensor(out_channels, in_channels, *self.kernel_size), requires_grad=False)
+    self._reset_weights(weight_mean=weight_mean, weight_std=weight_std)
+  
+  def forward(self, x, padding=None):
+    return nn.functional.conv2d(x, self.weights, bias=self.bias, stride=self.stride,
+                                padding=self.padding if padding is None else padding,
+                                dilation=self.dilation, groups=self.groups)
 ```
 Now to train the first two layer of our network, we will use [STDP](https://en.wikipedia.org/wiki/Spike-timing-dependent_plasticity) process. This process will adjust the synaptic strengths based on relative timing between post-synaptic and pre-synaptic spikes. So it performs two type of action : 
 * [long-term potentiation](https://en.wikipedia.org/wiki/Long-term_potentiation) (LTP)
 * [long-term depression](https://en.wikipedia.org/wiki/Long-term_depression) (LTD)
 
-LTP will occur if the neuron emit a spike right after being stimulated, otherwise it will be LTD.
+LTP will occur if the neuron emit a spike right after being stimulated, otherwise it will be LTD. Concretely, a simplified version of [STDP](http://www.scholarpedia.org/article/Spike-timing_dependent_plasticity) to update the weight is : 
+
+<img src="https://latex.codecogs.com/svg.image?\Delta w_{ij} = \begin{cases} a^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ a^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}" />
+
+where i and j represent respectively indices of post- and pre-synaptic neurons and the term <img src="https://latex.codecogs.com/svg.image?w_{ij}(1 - w_{ij})" /> correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
 
 ---
 Site Map:
