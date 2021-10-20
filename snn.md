@@ -239,6 +239,86 @@ So we define 4 functions :
 * ```get_pre_post_ordering```
 * ```functional_stdp```
 
+The ```pointwise_feature_competition_inhibition``` will find for each position the winning neuron that will inhibit every other neurons in other feature maps : 
+```python
+def pointwise_feature_competition_inhibition(potentials):
+  pot_max = potentials.max(dim=1, keepdim=True)  # max returns (values, indices)
+  # use topk instead of max as since torch version 1.0.0, max doesn't return first index when equal max values
+  earliest_spikes = pot_max[0].sign().topk(1, dim=0)  # topk returns (values, indices)
+  winners = pot_max[1].gather(0, earliest_spikes[1])  # keep values of only winning neurons
+  coefs = torch.zeros_like(potentials[0]).unsqueeze_(0).scatter_(1, winners, earliest_spikes[0])  # inhibition coefs
+  return torch.mul(potentials, coefs)  # broadcast on each timesteps
+```
+The ```get_k_winners``` will sort every neurons based on the earliest spike times then their accumulated potentials if needed. Then it will loop over those activated neurons in order to find at most k winners. When a winner is found, first it will set all other neurons in the same feature map to zero then it will inhibit, using a specified inhibition window centered on this neuron, the neurons on other feature maps : 
+```python
+def get_k_winners(potentials, kwta=1, inhibition_radius=0, spikes=None):
+  if spikes is None:
+    spikes = potentials.sign()
+  # finding earliest potentials for each position in each feature
+  # use topk instead of max as since torch version 1.0, max doesn't return first index when equal max values
+  maximum = torch.topk(spikes, 1, dim=0)  # [1, feat_out(eg32), height, width]
+  values = potentials.gather(dim=0, index=maximum[1]) # gathering values
+  # propagating the earliest potential through the whole timesteps
+  truncated_pot = spikes * values  # [timestep, feat_out, height, width]
+  # summation with a high enough value (maximum of potential summation over timesteps) at spike positions
+  v = truncated_pot.max() * potentials.size(0)
+  truncated_pot.addcmul_(spikes,v)  # truncated_pot + v * spikes
+  # summation over all timesteps
+  total = truncated_pot.sum(dim=0,keepdim=True)  # [1, feat_out, height, width]
+  
+  total.squeeze_(0)
+  global_pooling_size = tuple(total.size())
+  winners = []
+  for k in range(kwta):
+    max_val, max_idx = total.view(-1).max(0)
+    if max_val.item() != 0:
+      # finding the 3d position of the maximum value
+      max_idx_unraveled = np.unravel_index(max_idx.item(), global_pooling_size)
+      # adding to the winners list
+      winners.append(max_idx_unraveled)
+      # preventing the same feature to be the next winner
+      total[max_idx_unraveled[0],:,:] = 0
+      # columnar inhibition (increasing the chance of learning diverse features)
+      if inhibition_radius != 0:
+        rowMin,rowMax = max(0,max_idx_unraveled[-2]-inhibition_radius),min(total.size(-2),max_idx_unraveled[-2]+inhibition_radius+1)
+        colMin,colMax = max(0,max_idx_unraveled[-1]-inhibition_radius),min(total.size(-1),max_idx_unraveled[-1]+inhibition_radius+1)
+        total[:,rowMin:rowMax,colMin:colMax] = 0
+    else:
+      break
+  return winners  # winner = (feature, row, column) e.g. (2, 21, 10)
+```
+Now that we have the neurons that will perform the STDP update we need to know for each one if they have emit a spike before or after received ones from input synapses : 
+```python
+def get_pre_post_ordering(input_spikes, output_spikes, winners, kernel_size):
+  # accumulating input and output spikes to get latencies
+  input_latencies = torch.sum(input_spikes, dim=0)  # [feat_in, height_pad, width_pad]
+  output_latencies = torch.sum(output_spikes, dim=0)  # [feat_out, height, width]
+
+  result = []
+  for winner in winners:
+    # generating repeated output tensor with the same size of the receptive field
+    out_tensor = torch.ones(*kernel_size, device=output_latencies.device) * output_latencies[winner]
+    # slicing input tensor with the same size of the receptive field centered around winner
+    # since input_latencies is padded and winners are computes on unpadded input we do not need to shift it to the center
+    in_tensor = input_latencies[:, winner[-2]:winner[-2] + kernel_size[-2], winner[-1]:winner[-1] + kernel_size[-1]]
+    result.append(torch.ge(in_tensor, out_tensor))  # ge = in_tensor >= out_tensor
+
+  return result  # results_1 shape = [feat_in, kernel_size, kernel_size]
+```
+Now we have all information in order to update the layer weights : 
+```python
+def functional_stdp(conv_layer, learning_rate, input_spikes, output_spikes, winners,
+                    use_stabilizer=True, lower_bound=0, upper_bound=1):
+  pairings = get_pre_post_ordering(input_spikes, output_spikes, winners, conv_layer.kernel_size)
+  
+  lr = torch.zeros_like(conv_layer.weights)
+  for i in range(len(winners)):
+    feat = winners[i][0]
+    lr[feat] = torch.where(pairings[i], *(learning_rate[feat]))
+
+  conv_layer.weights += lr * ((conv_layer.weights - lower_bound) * (upper_bound - conv_layer.weights) if use_stabilizer else 1)
+  conv_layer.weights.clamp_(lower_bound, upper_bound)
+```
 
 
 ---
