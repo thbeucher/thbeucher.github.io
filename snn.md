@@ -226,6 +226,21 @@ LTP will occur if the neuron emit a spike right after being stimulated, otherwis
 
 where i and j represent respectively indices of post- and pre-synaptic neurons, **a<sup>+</sup>** and **a<sup>-</sup>** are the learning rate for LTP & LTD and the term <img src="https://latex.codecogs.com/svg.image?w_{ij}(1 - w_{ij})" /> correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
 
+Now that we have our update rule, we need to introduce competition mechanisms in order to allow the learning of different visual features.
+We use a variant of [Winners-take-all](https://en.wikipedia.org/wiki/Winner-take-all_(computing)) competition where k neurons will be eligible for a STDP update. As each neuron of a feature map share the same synaptic weights, only the first firing neuron of a map will be choosed. The k winners will be choosed based on the first that emit a spike then the ones with the highest potentials. Moreover, when elected, the neuron will inhibit neighbourg neurons of other maps, preventing them to be selected as the next winners.
+
+Our training graph could be depicted as : 
+
+![training_graph](images/training_schema.png)
+
+So we define 4 functions : 
+* ```pointwise_feature_competition_inhibition```
+* ```get_k_winners```
+* ```get_pre_post_ordering```
+* ```functional_stdp```
+
+
+
 ---
 Site Map:
 * Home Page -> *[Home Page](index.md)*
