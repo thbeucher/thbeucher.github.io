@@ -169,8 +169,31 @@ In this experiment we use the architecture from ([Mozafari et Al](https://arxiv.
 
 ![architecture](images/SDCNN_architecture.png)
 
-So we have 3 convolution layers and 3 pooling layers. Only the convolution layers are trainable, they are composed of non-leaky integrate-and-fire neurons retinotopically organized.
+We have 3 convolution layers and 3 pooling layers. Only the convolution layers are trainable, they are composed of non-leaky integrate-and-fire neurons retinotopically organized.
 
+Our neuron model can be seen like this : 
+
+![neuron](images/non-leaky-integrate-and-fire-neuron.png)
+
+where the input spikes going through each synapses are pondered by their respective efficacity (synapses weights) then the accumulated potential (sum) will make the neuron to fire or not depending on its membrane sensibility (threshold).
+
+So our layer can be depicted by two operation : 
+* convolution
+* thresholding (firing)
+
+To be able to detect a certain amount of visual features regardless of its location, we create a sets of synapses weights (convolution kernel/feature map) that we will train using STDP or R-STDP.
+
+We can now implement our convolutional layer the following way : 
+```python
+
+```
+Now to train the first two layer of our network, we will use [STDP](https://en.wikipedia.org/wiki/Spike-timing-dependent_plasticity) process. This process will adjust the synaptic strengths based on relative timing between post-synaptic and pre-synaptic spikes. So it performs two type of action : 
+* [long-term potentiation](https://en.wikipedia.org/wiki/Long-term_potentiation) (LTP)
+* [long-term depression](https://en.wikipedia.org/wiki/Long-term_depression) (LTD)
+
+LTP will occur if the neuron emit a spike right after being stimulated, otherwise it will be LTD.
+
+---
 Site Map:
 * Transformer -> *[Transformer](transformer.md)*
 * Neural Plasticity -> *[Neural Plasticity](plasticity.md)*
