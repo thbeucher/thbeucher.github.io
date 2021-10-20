@@ -319,7 +319,25 @@ def functional_stdp(conv_layer, learning_rate, input_spikes, output_spikes, winn
   conv_layer.weights += lr * ((conv_layer.weights - lower_bound) * (upper_bound - conv_layer.weights) if use_stabilizer else 1)
   conv_layer.weights.clamp_(lower_bound, upper_bound)
 ```
+Let's visualize the STDP update on our fake example spike train : 
 
+![fake_spike_train](images/fake_spikes_train.png)
+
+We use our ```Convolution``` class to obtain a random kernel of shape ```(3, 2, 3, 3)``` : 
+
+![random_kernel](images/random_conv_kernel.png)
+
+we use this kernel to perform the convolution with our fake input spike train then use our ```fire``` function to obtain the layer output potentials and spikes : 
+
+![potentials](images/potentials_after_conv_n_fire.png)
+
+now we perform the pointwise feature competition then call our ```get_k_winners``` function that return our winner ```[(feature_idx=1, row=2, column=2)]```
+
+with that we can call our ```functional_stdp``` function that update the weights accordingly. To make the update more visible we use big learning rate values (**a<sup>+</sup>**=0.4, **a<sup>-</sup>=-0.3**) : 
+
+![random_kernel_updated](images/random_conv_kernel_updated.png)
+
+As we see, our winner is one third row, third column. We see that the input spike train emit a spike on the second feature in first timestep at this position and none for the first feature so we confirm that a LTP happen on the second set of weights for the second feature map and a LTD on the first set of weights of the second feature map.
 
 ---
 Site Map:
