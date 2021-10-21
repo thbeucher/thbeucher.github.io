@@ -344,7 +344,9 @@ For the last layer of our network that we need to train supervisely in order to 
 <img src="https://latex.codecogs.com/svg.image?\Delta w_{ij} = \begin{cases} b^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ b^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}" />
 
 ## Hyperparameters
+
 STDP parameters : 
+
 | Parameter           |   Value   | Description            |
 | :----:              |   :----:  | :----:                 |
 | **a<sup>+</sup>**   |    0.004  | LTP learning rate      |
