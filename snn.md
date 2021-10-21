@@ -339,6 +339,23 @@ with that we can call our ```functional_stdp``` function that update the weights
 
 As we see, our winner is one third row, third column. We see that the input spike train emit a spike on the second feature in first timestep at this position and none for the first feature so we confirm that a LTP happen on the second set of weights for the second feature map and a LTD on the first set of weights of the second feature map.
 
+For the last layer of our network that we need to train supervisely in order to teach it to predict the correct label, we use a Reward-Modulated STDP. It consist of using an usual STDP update if the network made the correct prediction or a STDP update with inversed learning rate sign otherwise. We call it anti-STDP update and use **b<sup>+</sup>** and **b<sup>-</sup>** as anti-learning-rate : 
+
+<img src="https://latex.codecogs.com/svg.image?\Delta w_{ij} = \begin{cases} b^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ b^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}" />
+
+## Hyperparameters
+STDP parameters : 
+| Parameter           |   Value   | Description            |
+| :----:              |   :----:  | :----:                 |
+| **a<sup>+</sup>**   |    0.004  | LTP learning rate      |
+| **a<sup>-</sup>**   |   -0.003  | LTD learning rate      |
+| **b<sup>+</sup>**   |   0.0005  | LTP anti-learning rate |
+| **b<sup>-</sup>**   |   -0.004  | LTD anti-learning rate |
+
+Convolution layer parameters : 
+## Packing everything / Training & Testing script
+## Visualization
+
 ---
 Site Map:
 * Home Page -> *[Home Page](index.md)*
