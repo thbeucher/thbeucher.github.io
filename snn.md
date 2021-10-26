@@ -201,6 +201,12 @@ class Convolution(nn.Module):
     self.weights = nn.Parameter(torch.Tensor(out_channels, in_channels, *self.kernel_size), requires_grad=False)
     self._reset_weights(weight_mean=weight_mean, weight_std=weight_std)
   
+  def _reset_weights(self, weight_mean=0.8, weight_std=0.02):
+    self.weights.normal_(weight_mean, weight_std)
+  
+  def _load_weight(self, target):
+    self.weights.copy_(target)
+  
   def forward(self, x, padding=None):
     return nn.functional.conv2d(x, self.weights, bias=self.bias, stride=self.stride,
                                 padding=self.padding if padding is None else padding,
@@ -255,9 +261,9 @@ def get_k_winners(potentials, kwta=1, inhibition_radius=0, spikes=None):
   if spikes is None:
     spikes = potentials.sign()
   # finding earliest potentials for each position in each feature
-  # use topk instead of max as since torch version 1.0, max doesn't return first index when equal max values
-  maximum = torch.topk(spikes, 1, dim=0)  # [1, feat_out(eg32), height, width]
-  values = potentials.gather(dim=0, index=maximum[1]) # gathering values
+  maximum = (spikes.size(0) - spikes.sum(dim = 0, keepdim=True)).long()
+  maximum.clamp_(0,spikes.size(0)-1)
+  values = potentials.gather(dim=0, index=maximum) # gathering values
   # propagating the earliest potential through the whole timesteps
   truncated_pot = spikes * values  # [timestep, feat_out, height, width]
   # summation with a high enough value (maximum of potential summation over timesteps) at spike positions
@@ -270,15 +276,15 @@ def get_k_winners(potentials, kwta=1, inhibition_radius=0, spikes=None):
   global_pooling_size = tuple(total.size())
   winners = []
   for k in range(kwta):
-    max_val, max_idx = total.view(-1).max(0)
+    max_val,max_idx = total.view(-1).max(0)
     if max_val.item() != 0:
       # finding the 3d position of the maximum value
-      max_idx_unraveled = np.unravel_index(max_idx.item(), global_pooling_size)
+      max_idx_unraveled = np.unravel_index(max_idx.item(),global_pooling_size)
       # adding to the winners list
       winners.append(max_idx_unraveled)
       # preventing the same feature to be the next winner
       total[max_idx_unraveled[0],:,:] = 0
-      # columnar inhibition (increasing the chance of learning diverse features)
+      # columnar inhibition (increasing the chance of leanring diverse features)
       if inhibition_radius != 0:
         rowMin,rowMax = max(0,max_idx_unraveled[-2]-inhibition_radius),min(total.size(-2),max_idx_unraveled[-2]+inhibition_radius+1)
         colMin,colMax = max(0,max_idx_unraveled[-1]-inhibition_radius),min(total.size(-1),max_idx_unraveled[-1]+inhibition_radius+1)
@@ -355,7 +361,17 @@ STDP parameters :
 | **b<sup>-</sup>**   |   -0.004  | LTD anti-learning rate |
 
 Convolution layer parameters : 
+
+|         | n_input_channel | n_output_channel | kernel_size |
+| :---:   | :---:           | :---:            | :---:       |
+| Layer 1 |
+| Layer 2 |
+| Layer 3 |
+
 ## Packing everything / Training & Testing script
+
+The full training and test script can be found [here](https://github.com/thbeucher/ML_pytorch/blob/master/apop/SNN/sdcnn_or_rl.py)
+
 ## Visualization
 
 ---
