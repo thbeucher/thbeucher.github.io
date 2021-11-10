@@ -345,7 +345,9 @@ with that we can call our ```functional_stdp``` function that update the weights
 
 As we see, our winner is on second row, third column. It fires at the second timestep. Taking a kernel size rectangular selection, centered around the winner, of the input spike train, we compare pre- and post-synaptic firing time that give us this update rule for the second feature :
 
-![update_rule](images/update_rule.png)
+Original feature 1 kernel values | update rule | updated feature 1 kernel values
+:----:                           | :--: | :---:
+![org_feat1](images/feature1_origin.png) | ![update_rule](images/update_rule.png) | ![updated_feat1](images/feature1_updated.png)
 
 For the last layer of our network that we need to train supervisely in order to teach it to predict the correct label, we use a Reward-Modulated STDP. It consist of using an usual STDP update if the network made the correct prediction or a STDP update with inversed learning rate sign otherwise. We call it anti-STDP update and use **b<sup>+</sup>** and **b<sup>-</sup>** as anti-learning-rate : 
 
