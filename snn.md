@@ -337,13 +337,15 @@ we use this kernel to perform the convolution with our fake input spike train th
 
 ![potentials](images/potentials_after_conv_n_fire.png)
 
-now we perform the pointwise feature competition then call our ```get_k_winners``` function that return our winner ```[(feature_idx=1, row=2, column=2)]```
+now we perform the pointwise feature competition then call our ```get_k_winners``` function that return our winner ```[(feature_idx=1, row=2, column=3)]```
 
 with that we can call our ```functional_stdp``` function that update the weights accordingly. To make the update more visible we use big learning rate values (**a<sup>+</sup>**=0.4, **a<sup>-</sup>=-0.3**) : 
 
 ![random_kernel_updated](images/random_conv_kernel_updated.png)
 
-As we see, our winner is one third row, third column. We see that the input spike train emit a spike on the second feature in first timestep at this position and none for the first feature so we confirm that a LTP happen on the second set of weights for the second feature map and a LTD on the first set of weights of the second feature map.
+As we see, our winner is on second row, third column. It fires at the second timestep. Taking a kernel size rectangular selection, centered around the winner, of the input spike train, we compare pre- and post-synaptic firing time that give us this update rule for the second feature :
+
+![update_rule](images/update_rule.png)
 
 For the last layer of our network that we need to train supervisely in order to teach it to predict the correct label, we use a Reward-Modulated STDP. It consist of using an usual STDP update if the network made the correct prediction or a STDP update with inversed learning rate sign otherwise. We call it anti-STDP update and use **b<sup>+</sup>** and **b<sup>-</sup>** as anti-learning-rate : 
 
