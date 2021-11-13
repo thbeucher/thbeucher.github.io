@@ -353,6 +353,8 @@ For the last layer of our network that we need to train supervisely in order to 
 
 <img src="https://latex.codecogs.com/svg.image?\Delta w_{ij} = \begin{cases} b^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ b^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}" />
 
+So if the network make a correct prediction (ie one of the assigned neuron of the correct label have the maximum potential) we reinforce the synapses that are connected to a stimulus and depress others. If it make a wrong prediction, as we have inversed the learning rate signs, we depress synapses that increase the potential and reinforce others. In words, the anti-stdp rule (punishment) "tell" the network "do not react to thos stimulus but look at others".
+
 ## Hyperparameters
 
 STDP parameters : 
@@ -371,6 +373,10 @@ Convolution layer parameters :
 | Layer 1 |
 | Layer 2 |
 | Layer 3 |
+
+Performance progression if we play with the number of timesteps used to temporally encode images : 
+
+![perf_ntimesteps](images/snn_perf_ntimestepsVar.png)
 
 ## Packing everything / Training & Testing script
 
