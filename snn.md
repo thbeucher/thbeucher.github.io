@@ -337,7 +337,7 @@ we use this kernel to perform the convolution with our fake input spike train th
 
 ![potentials](images/potentials_after_conv_n_fire.png)
 
-now we perform the pointwise feature competition then call our ```get_k_winners``` function that return our winner ```[(feature_idx=1, row=2, column=3)]```
+now we perform the pointwise feature competition then call our ```get_k_winners``` function that return our winner ```[(feature_idx=0, row=2, column=3)]```
 
 with that we can call our ```functional_stdp``` function that update the weights accordingly. To make the update more visible we use big learning rate values (**a<sup>+</sup>**=0.4, **a<sup>-</sup>=-0.3**) : 
 
