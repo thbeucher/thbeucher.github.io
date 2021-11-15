@@ -386,10 +386,10 @@ Performance progression if we play with the number of timesteps used to temporal
 |:---:|:---:|
 |0.81| 0:23:04 |
 |0.86| 1:30:42 |
+|-|-|
+|-|-|
+|-|-|
 |max=0.873| 21:06:45 |
-|-|-|
-|-|-|
-|-|-|
 
 </td><td>
 
@@ -425,6 +425,10 @@ Performance progression if we play with the number of timesteps used to temporal
 |max=0.955| 21:06:10 |
 
 </td></tr> </table>
+
+T-SNE visualization of output from second layer (only STDP training):
+
+![tsne](images/tsne_viz.png)
 
 ## Packing everything / Training & Testing script
 
