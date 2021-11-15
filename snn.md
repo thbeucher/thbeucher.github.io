@@ -378,6 +378,54 @@ Performance progression if we play with the number of timesteps used to temporal
 
 ![perf_ntimesteps](images/snn_perf_ntimestepsVar.png)
 
+<table>
+<tr><th>n_timestep=10</th><th>n_timestep=15</th><th>n_timestep=20</th><th>n_timestep=25</th></tr>
+<tr><td>
+
+|f1| time |
+|:---:|:---:|
+|0.81| 0:23:04 |
+|0.86| 1:30:42 |
+|max=0.873| 21:06:45 |
+|-|-|
+|-|-|
+|-|-|
+
+</td><td>
+
+|f1| time |
+|:---:|:---:|
+|0.82| 0:02:51 |
+|0.86| 0:07:24 |
+|0.90| 0:24:02 |
+|0.93| 1:06:23 |
+|0.95| 6:38:20 |
+|max=0.956| 21:33:40 |
+
+</td><td>
+
+|f1| time |
+|:---:|:---:|
+|0.80| 0:01:28 |
+|0.85| 0:02:55 |
+|0.90| 0:10:15 |
+|0.93| 0:36:38 |
+|0.95| 2:10:26 |
+|max=0.962| 23:00:30 |
+
+</td><td>
+
+|f1|time| 
+|:---:|:---:|
+|0.82| 0:01:25 |
+|0.87| 0:02:53 |
+|0.90| 0:07:15 |
+|0.93| 0:33:34 |
+|0.95| 5:16:07 |
+|max=0.955| 21:06:10 |
+
+</td></tr> </table>
+
 ## Packing everything / Training & Testing script
 
 The full training and test script can be found [here](https://github.com/thbeucher/ML_pytorch/blob/master/apop/SNN/sdcnn_or_rl.py)
