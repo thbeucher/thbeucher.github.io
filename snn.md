@@ -228,14 +228,9 @@ Now to train the first two layer of our network, we will use [STDP](https://en.w
 
 LTP will occur if the neuron emit a spike right after being stimulated, otherwise it will be LTD. Concretely, a simplified version of [STDP](http://www.scholarpedia.org/article/Spike-timing_dependent_plasticity) to update the weight is : 
 
-
-```math
-\Delta w_{ij} = \begin{cases} a^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ a^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}
-```
-
 <img src="https://latex.codecogs.com/svg.image?\Delta%20w_{ij}%20=%20\begin{cases}%20a^+w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20\leq%200\\%20a^-w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20>0%20\text{or%20neuron%20j%20never%20fires}%20\end{cases}" />
 
-where i and j represent respectively indices of post- and pre-synaptic neurons, **a<sup>+</sup>** and **a<sup>-</sup>** are the learning rate for LTP & LTD and the term $`w_{ij}(1 - w_{ij})`$ correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
+where i and j represent respectively indices of post- and pre-synaptic neurons, **a<sup>+</sup>** and **a<sup>-</sup>** are the learning rate for LTP & LTD and the term <img src="https://latex.codecogs.com/svg.omage?w_{ij}(1%20-%20w_{ij})" /> correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
 
 Now that we have our update rule, we need to introduce competition mechanisms in order to allow the learning of different visual features.
 We use a variant of [Winners-take-all](https://en.wikipedia.org/wiki/Winner-take-all_(computing)) competition where k neurons will be eligible for a STDP update. As each neuron of a feature map share the same synaptic weights, only the first firing neuron of a map will be choosed. The k winners will be choosed based on the first that emit a spike then the ones with the highest potentials. Moreover, when elected, the neuron will inhibit neighbourg neurons of other maps, preventing them to be selected as the next winners.
@@ -356,9 +351,7 @@ Original feature 1 kernel values | update rule | updated feature 1 kernel values
 
 For the last layer of our network that we need to train supervisely in order to teach it to predict the correct label, we use a Reward-Modulated STDP. It consist of using an usual STDP update if the network made the correct prediction or a STDP update with inversed learning rate sign otherwise. We call it anti-STDP update and use **b<sup>+</sup>** and **b<sup>-</sup>** as anti-learning-rate : 
 
-```math
-\Delta w_{ij} = \begin{cases} b^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ b^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}
-```
+<img src="https://latex.codecogs.com/svg.image?\Delta%20w_{ij}%20=%20\begin{cases}%20b^-w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20\leq%200\\%20b^+w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20>0%20\text{%20or%20neuron%20j%20never%20fires}%20\end{cases}" />
 
 So if the network make a correct prediction (ie one of the assigned neuron of the correct label have the maximum potential) we reinforce the synapses that are connected to a stimulus and depress others. If it make a wrong prediction, as we have inversed the learning rate signs, we depress synapses that increase the potential and reinforce others. In words, the anti-stdp rule (punishment) "tell" the network "do not react to thos stimulus but look at others".
 
