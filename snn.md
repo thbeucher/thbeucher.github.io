@@ -233,6 +233,8 @@ LTP will occur if the neuron emit a spike right after being stimulated, otherwis
 \Delta w_{ij} = \begin{cases} a^+w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i <= 0$}\\ a^-w_{ij}(1 - w_{ij}) & \text{if $t_j - t_i > 0$ or neuron j never fires}\\ \end{cases}
 ```
 
+<img src="https://latex.codecogs.com/svg.image?\Delta%20w_{ij}%20=%20\begin{cases}%20a^+w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20\leq%200\\%20a^-w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20>0%20\text{or%20neuron%20j%20never%20fires}%20\end{cases}" />
+
 where i and j represent respectively indices of post- and pre-synaptic neurons, **a<sup>+</sup>** and **a<sup>-</sup>** are the learning rate for LTP & LTD and the term $`w_{ij}(1 - w_{ij})`$ correspond to a soft bound that maintain the weights between 0 and 1. This equation just say that we will increase the weight if the pre-synaptic neuron emite a spike before the post-synaptic one or decrease it otherwise.
 
 Now that we have our update rule, we need to introduce competition mechanisms in order to allow the learning of different visual features.
