@@ -351,7 +351,9 @@ Original feature 1 kernel values | update rule | updated feature 1 kernel values
 
 For the last layer of our network that we need to train supervisely in order to teach it to predict the correct label, we use a Reward-Modulated STDP. It consist of using an usual STDP update if the network made the correct prediction or a STDP update with inversed learning rate sign otherwise. We call it anti-STDP update and use **b<sup>+</sup>** and **b<sup>-</sup>** as anti-learning-rate : 
 
+{% raw %}
 <img src="https://latex.codecogs.com/svg.image?\Delta%20w_{ij}%20=%20\begin{cases}%20b^-w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20\leq%200\\%20b^+w_{ij}(1%20-%20w_{ij})%20&%20\text{if%20}t_j%20-%20t_i%20>0%20\text{%20or%20neuron%20j%20never%20fires}%20\end{cases}" />
+{% endraw %}
 
 So if the network make a correct prediction (ie one of the assigned neuron of the correct label have the maximum potential) we reinforce the synapses that are connected to a stimulus and depress others. If it make a wrong prediction, as we have inversed the learning rate signs, we depress synapses that increase the potential and reinforce others. In words, the anti-stdp rule (punishment) "tell" the network "do not react to thos stimulus but look at others".
 
