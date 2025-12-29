@@ -4,7 +4,7 @@ Passionate about nature intelligence, I want to understand its secrets and that'
 
 Currently working on NLP (Natural Language Processing) field.
 
-Link to my *[CV](cv.md)*.
+Links: *[CV](cv.md)* | [Github](https://github.com/thbeucher?tab=repositories)
 
 # Topics 
 
@@ -16,6 +16,14 @@ Link to my *[CV](cv.md)*.
 # Papers
 
 * *[Efficient Use of Word Embeddings for Short Text Classification](https://thbeucher.github.io/images/ES2017.pdf)*
+
+# Github projects:
+
+* [SNN](https://github.com/thbeucher/ML_pytorch/tree/master/apop/SNN)
+* [ASR](https://github.com/thbeucher/ML_pytorch/tree/master/apop/ASR)
+* [FlowMatching](https://github.com/thbeucher/ML_pytorch/blob/master/apop/VariousExperiments/flow_matching_exps.py)
+* [AutoEncoders](https://github.com/thbeucher/ML_pytorch/blob/master/apop/VariousExperiments/encoding_exps.py)
+* [GANs](https://github.com/thbeucher/ML_pytorch/tree/master/apop/GAN)
 
 ---
 Site Map:
