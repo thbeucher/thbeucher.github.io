@@ -1,4 +1,4 @@
-![CV](images/CV_thomas-beucher_2024_EN.png)
+![CV](images/CV_thomas-beucher_2026_EN.png)
 
 ---
 Site Map:
